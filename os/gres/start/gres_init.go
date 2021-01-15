@@ -1,4 +1,4 @@
-package gres
+package start
 
 import (
 	"github.com/gogf/gf/frame/g"
@@ -7,13 +7,17 @@ import (
 	"io/ioutil"
 )
 
-// MemoryFileToLocal 将打包到二进制中的文件，解压到本地
+// SingleFileMemoryToLocal 将打包到二进制中的单文件，解压到本地
+//
 // 示例：
-// MemoryFileToLocal("./db", "sqlite3.db", "db/sqlite3.db")
-// folderPath：文件所在文件夹（可以是相对路径以./开头）
-// fileName：  文件名称
-// memoryPath：内存文件路径（不能以./开头）
-func MemoryFileToLocal(folderPath, fileName, memoryPath string) {
+// start.SingleFileMemoryToLocal("./db", "sqlite3.db", "db/sqlite3.db")
+//
+// @Param folderPath：文件所在文件夹（可以是相对路径以./开头）
+//
+// @Param fileName：  文件名称
+//
+// @Param memoryPath：内存文件路径（不能以./开头）
+func SingleFileMemoryToLocal(folderPath, fileName, memoryPath string) {
 
 	// 判断文件夹是否为空
 	if empty := gfile.IsEmpty(folderPath); empty {
