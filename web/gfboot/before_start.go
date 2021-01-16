@@ -1,4 +1,4 @@
-package start
+package gfboot
 
 import (
 	"github.com/gogf/gf/frame/g"

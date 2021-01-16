@@ -1,4 +1,4 @@
-package dto
+package gfdto
 
 import "github.com/gogf/gf/util/gconv"
 

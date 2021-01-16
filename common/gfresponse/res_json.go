@@ -1,4 +1,4 @@
-package response
+package gfresponse
 
 import (
 	"github.com/gogf/gf/frame/g"
