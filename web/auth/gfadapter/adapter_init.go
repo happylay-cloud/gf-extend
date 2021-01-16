@@ -14,6 +14,11 @@ import (
 // 从自定义数据库连接中创建适配器
 func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 
+	// 获取当前数据库类型
+	_ = g.DB().GetConfig().Type
+
+	//  TODO 需要对不同类型数据库进行处理
+
 	// 构造适配器对象
 	a := &Adapter{
 		db: customDb,

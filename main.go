@@ -23,18 +23,22 @@ func main() {
 }
 
 func testSqlite3(r *ghttp.Request) {
-	sql := gfadapter.CreateSqlite3Table("sacbin_rule")
-	g.Dump(g.Cfg())
-	exec, _ := g.DB().Exec(sql)
-	g.Dump(exec)
+	sql := gfadapter.CreateSqlite3Table("casbin_rule")
+	if exec, err := g.DB().Exec(sql); err != nil {
+		gfres.FailWithEx(r, err.Error())
+	} else {
+		gfres.OkWithData(r, exec)
+	}
 }
 
 func testNewCasbin(r *ghttp.Request) {
 
-	e, err := gfadapter.NewEnforcer(g.DB())
+	e, err := gfadapter.NewEnforcer()
 	if err != nil {
 		gfres.FailWithEx(r, err.Error())
 	}
 	_, _ = e.AddPolicy("张三", "/web/spi/v1", "只读")
+
 	gfres.OkWithData(r, e.GetAllObjects())
+
 }
