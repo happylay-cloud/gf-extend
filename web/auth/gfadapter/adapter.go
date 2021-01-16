@@ -179,6 +179,7 @@ func savePolicyLine(ptype string, rule []string) CasbinRule {
 
 // SavePolicy 将策略保存到数据库。
 func (a *Adapter) SavePolicy(model model.Model) error {
+	// TODO 需要修改，不能直接删表
 	err := a.dropTable()
 	if err != nil {
 		return err

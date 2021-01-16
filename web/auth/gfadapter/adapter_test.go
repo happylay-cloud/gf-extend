@@ -152,20 +152,27 @@ func testAutoSave(t *testing.T, a *Adapter) {
 		{"bob", "data2", "write"}})
 }
 
-func TestAdapters(t *testing.T) {
-	a := initAdapter(t, "mysql", "root:@tcp(127.0.0.1:3306)/casbin")
-	testAutoSave(t, a)
-	testSaveLoad(t, a)
+func TestMysqlAdapters(t *testing.T) {
 
-	a = initAdapter(t, "pgsql", "user=postgres host=127.0.0.1 port=5432 sslmode=disable dbname=casbin")
+	// 测试mysql
+	a := initAdapter(t, "mysql", "root:root@tcp(127.0.0.1:3306)/casbin")
 	testAutoSave(t, a)
 	testSaveLoad(t, a)
 
 	a = initAdapterFormOptions(t, &Adapter{
 		driverName:     "mysql",
-		dataSourceName: "root:@tcp(127.0.0.1:3306)/casbin",
+		dataSourceName: "root:root@tcp(127.0.0.1:3306)/casbin",
 	})
 
+	testAutoSave(t, a)
+	testSaveLoad(t, a)
+
+}
+
+func TestPgsqlAdapters(t *testing.T) {
+
+	// 测试pgsql
+	a := initAdapter(t, "pgsql", "user=postgres host=127.0.0.1 port=5432 sslmode=disable dbname=casbin")
 	testAutoSave(t, a)
 	testSaveLoad(t, a)
 
@@ -173,6 +180,7 @@ func TestAdapters(t *testing.T) {
 		driverName:     "pgsql",
 		dataSourceName: "user=postgres host=127.0.0.1 port=5432 sslmode=disable dbname=casbin",
 	})
+
 	testAutoSave(t, a)
 	testSaveLoad(t, a)
 }
