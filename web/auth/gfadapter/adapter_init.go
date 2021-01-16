@@ -3,6 +3,8 @@ package gfadapter
 import (
 	"runtime"
 
+	"github.com/gogf/gf/text/gstr"
+
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/frame/g"
@@ -11,13 +13,31 @@ import (
 	"github.com/casbin/casbin/v2/model"
 )
 
+const (
+	sqlite = "sqlite"
+	mysql  = "mysql"
+)
+
 // 从自定义数据库连接中创建适配器
 func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 
 	// 获取当前数据库类型
-	_ = g.DB().GetConfig().Type
+	dbType := g.DB().GetConfig().Type
 
 	//  TODO 需要对不同类型数据库进行处理
+
+	// 判断当前数据库类型
+	if gstr.Equal(sqlite, dbType) { // 自动创建sqlite3数据库casbin_rule表
+		sql := CreateSqlite3Table("casbin_rule")
+		if _, err := g.DB().Exec(sql); err != nil {
+			return nil, err
+		}
+	}
+	// TODO ------------------------------------------------------------
+	// 1.添加事务操作
+	// 2.修改自动保存逻辑
+	// 3.完善不同数据库操作
+	// -----------------------------------------------------------------
 
 	// 构造适配器对象
 	a := &Adapter{

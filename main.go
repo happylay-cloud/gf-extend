@@ -15,20 +15,10 @@ func main() {
 	s := g.Server()
 
 	s.Group("/", func(group *ghttp.RouterGroup) {
-		group.ALL("/testSqlite3", testSqlite3)
 		group.ALL("/", testNewCasbin)
 	})
 
 	s.Run()
-}
-
-func testSqlite3(r *ghttp.Request) {
-	sql := gfadapter.CreateSqlite3Table("casbin_rule")
-	if exec, err := g.DB().Exec(sql); err != nil {
-		gfres.FailWithEx(r, err.Error())
-	} else {
-		gfres.OkWithData(r, exec)
-	}
 }
 
 func testNewCasbin(r *ghttp.Request) {
@@ -36,9 +26,16 @@ func testNewCasbin(r *ghttp.Request) {
 	e, err := gfadapter.NewEnforcer()
 	if err != nil {
 		gfres.FailWithEx(r, err.Error())
+		return
 	}
-	_, _ = e.AddPolicy("张三", "/web/spi/v1", "只读")
+	// 添加策略
+	_, _ = e.AddPolicy("happylay", "/api", "GET")
 
-	gfres.OkWithData(r, e.GetAllObjects())
+	gfres.OkWithData(r, g.Map{
+		"sub":  e.GetAllSubjects(),
+		"obj":  e.GetAllObjects(),
+		"act":  e.GetAllActions(),
+		"role": e.GetAllRoles(),
+	})
 
 }
