@@ -1,0 +1,10 @@
+# HTTP服务
+[server]
+	Address     = ":8080"
+	ServerAgent = "gf-extend"
+
+# 数据库
+[database]
+    [database.default]
+        link = "sqlite:./db/sqlite3.db"
+        debug = true

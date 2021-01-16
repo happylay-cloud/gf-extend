@@ -1,4 +1,4 @@
-package gdbadapter
+package gfadapter
 
 import (
 	_ "github.com/go-sql-driver/mysql"

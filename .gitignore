@@ -1,6 +1,9 @@
-.idea
-
 .DS_Store
+
+.idea
 
 go.sum
 
+.log
+
+bin
