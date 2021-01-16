@@ -1,13 +1,12 @@
-package casbin_test
+package gfcasbin
 
 import (
 	"fmt"
 	"testing"
 
-	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
-
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
+	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"github.com/gogf/gf/frame/g"
 )
 
