@@ -67,6 +67,7 @@ func NewAdapterFromOptions(adapter *Adapter) (*Adapter, error) {
 
 		runtime.SetFinalizer(adapter, finalizer)
 	}
+
 	return adapter, nil
 }
 
