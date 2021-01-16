@@ -7,6 +7,10 @@ import (
 )
 
 // MiddlewareErrorHandler 全局后置中间件捕获异常
+//  示例：
+//  s := g.Server()
+//  s.Plugin(&swagger.Swagger{})
+//  s.Use(gfmiddleware.MiddlewareErrorHandler)
 func MiddlewareErrorHandler(r *ghttp.Request) {
 	r.Middleware.Next()
 	if err := r.GetError(); err != nil {
@@ -15,6 +19,6 @@ func MiddlewareErrorHandler(r *ghttp.Request) {
 		// 清除系统异常响应
 		r.Response.ClearBuffer()
 		// 返回自定义异常响应
-		gfresponse.FailWithEx(r, err.Error())
+		gfres.FailWithEx(r, err.Error())
 	}
 }

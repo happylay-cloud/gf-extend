@@ -1,4 +1,4 @@
-package gfresponse
+package gfres
 
 import (
 	"github.com/gogf/gf/frame/g"
@@ -13,7 +13,7 @@ const (
 	BUSINESS_ERROR = 501 // 通用业务异常
 )
 
-// 数据返回通用JSON数据结构
+// 数据返回通用json数据结构
 type JsonResponse struct {
 	Code      int         `json:"code"`      // 状态码（200：操作成功，201：操作失败，500：服务器内部错误，501：通用业务异常）
 	Message   string      `json:"message"`   // 提示信息
@@ -97,7 +97,7 @@ func Json(r *ghttp.Request, code int, message string, data ...interface{}) {
 	}
 }
 
-// 返回JSON数据并退出当前HTTP执行函数
+// 返回json数据并退出当前http执行函数
 func JsonExit(r *ghttp.Request, err int, msg string, data ...interface{}) {
 	Json(r, err, msg, data...)
 	r.Exit()
