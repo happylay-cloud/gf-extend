@@ -1,10 +1,11 @@
 package gfboot
 
 import (
+	"io/ioutil"
+
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/os/gfile"
 	"github.com/gogf/gf/os/gres"
-	"io/ioutil"
 )
 
 // SingleFileMemoryToLocal 将打包到二进制中的单文件，解压到本地
