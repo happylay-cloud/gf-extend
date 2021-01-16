@@ -10,7 +10,7 @@ import (
 // SingleFileMemoryToLocal 将打包到二进制中的单文件，解压到本地
 //
 // 示例：
-// start.SingleFileMemoryToLocal("./db", "sqlite3.db", "db/sqlite3.db")
+// gfboot.SingleFileMemoryToLocal("./db", "sqlite3.db", "db/sqlite3.db")
 //
 // @Param folderPath：文件所在文件夹（可以是相对路径以./开头）
 //
