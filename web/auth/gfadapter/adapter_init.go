@@ -22,7 +22,7 @@ const (
 func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 
 	// 获取当前数据库类型
-	dbType := g.DB().GetConfig().Type
+	dbType := customDb.GetConfig().Type
 
 	//  TODO 需要对不同类型数据库进行处理
 
@@ -37,6 +37,7 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 	// 1.添加事务操作
 	// 2.修改自动保存逻辑
 	// 3.完善不同数据库操作
+	// 4.单例模式实例化对象
 	// -----------------------------------------------------------------
 
 	// 构造适配器对象
