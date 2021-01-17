@@ -74,15 +74,17 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 }
 
 // NewEnforcer 实例化gf-casbin执行器对象
-//  自动寻找gf框架下默认default分组下gdb.DB数据源。
+//  1、支持自动注册，自动寻找gf框架default分组数据源（gdb.DB），无需关心数据源种类。
+//  2、支持自定义分组数据源注册。
 //
-//  支持自动注册，自定义分组数据源注册。
 //  目前支持sqlite3、mysql5.7、postgresql数据库。
 //
 //  备注：1.sqlite3、mysql5.7数据库表新增主键自增，postgresql数据库无主键。
 //       2.sqlite3、pgsql需要添加额外驱动
-//         sqlite3驱动：_ "github.com/lib/pq"
-//	       pgsql驱动：_ "github.com/mattn/go-sqlite3"
+//
+//	sqlite3驱动：	_ "github.com/lib/pq"
+//
+//	pgsql驱动：		_ "github.com/mattn/go-sqlite3"
 //
 //  示例：
 //  e, err := gfadapter.NewEnforcer()
