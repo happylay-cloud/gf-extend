@@ -1,6 +1,9 @@
 # gf-extend
 GoFrame框架扩展工具包
 
+![gf-plus](https://img.shields.io/badge/gf-plus-ea7b99)
+![GitHub last commit](https://img.shields.io/github/last-commit/happylay-cloud/gf-extend?style=flat-square)
+
 ### **安装**
 
 > go get -u -v -d github.com/happylay-cloud/gf-extend
