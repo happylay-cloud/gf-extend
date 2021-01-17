@@ -49,6 +49,8 @@ func testNewCasbin(r *ghttp.Request) {
 // 测试casbin适配器
 func testCabinAdapter(e *casbin.Enforcer) {
 
+	e.EnableAutoSave(true)
+
 	// 添加策略
 	if ok, _ := e.AddPolicy("admin", "/api/v1/hello", "GET"); !ok {
 		fmt.Println("策略已经存在")

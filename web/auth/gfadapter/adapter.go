@@ -138,7 +138,7 @@ func loadPolicyLine(line CasbinRule, model model.Model) {
 	persist.LoadPolicyLine(lineText, model)
 }
 
-// LoadPolicy 从数据库加载策略。
+// LoadPolicy 从数据库加载所有策略规则。（必须实现此方法）
 func (a *Adapter) LoadPolicy(model model.Model) error {
 	// 打印日志
 	g.Log().Line(false).Debug("从数据库中加载策略")
@@ -182,10 +182,11 @@ func savePolicyLine(pType string, rule []string) CasbinRule {
 	return line
 }
 
-// SavePolicy 将策略保存到数据库。
+// SavePolicy 将所有策略保存到数据库。（必须实现此方法）（慎用）
+//  备注：只有适配器才能调用此方法，执行器无法调用。
 func (a *Adapter) SavePolicy(model model.Model) error {
 	// 打印日志
-	g.Log().Line(false).Debug("自动保存策略")
+	g.Log().Line(false).Warning("保存所有策略到数据库，执行流程：删除表，新建表，将所有策略规则保存到存储中，不建议使用此方法a.SavePolicy()。")
 
 	// TODO 需要修改，不能直接删表
 	err := a.dropTable()
