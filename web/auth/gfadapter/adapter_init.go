@@ -29,7 +29,7 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 	// 判断当前数据库类型
 	if gstr.Equal(sqlite, dbType) { // 自动创建sqlite3数据库casbin_rule表
 		sql := CreateSqlite3Table("casbin_rule")
-		if _, err := g.DB().Exec(sql); err != nil {
+		if _, err := customDb.Exec(sql); err != nil {
 			return nil, err
 		}
 	}
@@ -56,6 +56,10 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 }
 
 // NewEnforcer 实例化gdb.DB默认数据源casbin执行器
+//  示例：
+//  e, err := gfadapter.NewEnforcer()
+//  e, err := gfadapter.NewEnforcer(g.DB())
+//  e, err := gfadapter.NewEnforcer(g.DB("casbin"))
 func NewEnforcer(customDb ...gdb.DB) (*casbin.Enforcer, error) {
 
 	// rbac_model.conf配置字符串

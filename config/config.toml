@@ -8,3 +8,6 @@
     [database.default]
         link = "sqlite:./db/sqlite3.db"
         debug = true
+    [database.casbin]
+        link = "sqlite:./db/sqlite3.db"
+        debug = true

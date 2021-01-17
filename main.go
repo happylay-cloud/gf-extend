@@ -23,7 +23,7 @@ func main() {
 
 func testNewCasbin(r *ghttp.Request) {
 
-	e, err := gfadapter.NewEnforcer()
+	e, err := gfadapter.NewEnforcer(g.DB("casbin"))
 	if err != nil {
 		gfres.FailWithEx(r, err.Error())
 		return
