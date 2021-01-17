@@ -8,6 +8,7 @@ import (
 func CreateSqlite3Table(tableName string) (sql string) {
 	return fmt.Sprintf(`
 CREATE TABLE IF NOT EXISTS %s(
+	id INTEGER NOT NULL CONSTRAINT %s PRIMARY KEY AUTOINCREMENT,
     p_type VARCHAR(32)  DEFAULT '' NOT NULL,
     v0     VARCHAR(255) DEFAULT '' NOT NULL,
     v1     VARCHAR(255) DEFAULT '' NOT NULL,
@@ -31,13 +32,14 @@ CREATE TABLE IF NOT EXISTS %s(
            LENGTH("v5") <= 255)
 );
 CREATE INDEX IF NOT EXISTS %s ON %s (p_type, v0, v1);`,
-		tableName, "idx_"+tableName, tableName)
+		tableName, tableName+"_pk", "idx_"+tableName, tableName)
 }
 
 // CreateMysqlTable 创建Mysql表结构sql
 func CreateMysqlTable(tableName string) (sql string) {
 	return fmt.Sprintf(`
 CREATE TABLE IF NOT EXISTS %s (
+    id     INT(11)      NOT NULL AUTO_INCREMENT COMMENT '主键',
     p_type VARCHAR(32)  NOT NULL DEFAULT '' COMMENT '类型，p代表策略，g代表角色',
     v0     VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'sub',
     v1     VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'obj',
@@ -45,7 +47,8 @@ CREATE TABLE IF NOT EXISTS %s (
     v3     VARCHAR(255) NOT NULL DEFAULT '',
     v4     VARCHAR(255) NOT NULL DEFAULT '',
     v5     VARCHAR(255) NOT NULL DEFAULT '',
-    INDEX %s (p_type, v0, v1)
+    PRIMARY KEY (id),
+    KEY %s (p_type, v0, v1)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;`,
 		tableName, "idx_"+tableName)
 }

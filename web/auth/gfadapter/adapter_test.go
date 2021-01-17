@@ -172,13 +172,13 @@ func TestMysqlAdapters(t *testing.T) {
 func TestPgsqlAdapters(t *testing.T) {
 
 	// 测试pgsql
-	a := initAdapter(t, "pgsql", "user=postgres host=127.0.0.1 port=5432 sslmode=disable dbname=casbin")
+	a := initAdapter(t, "pgsql", "user=root password=root host=127.0.0.1 port=5432 sslmode=disable dbname=casbin")
 	testAutoSave(t, a)
 	testSaveLoad(t, a)
 
 	a = initAdapterFormOptions(t, &Adapter{
 		driverName:     "pgsql",
-		dataSourceName: "user=postgres host=127.0.0.1 port=5432 sslmode=disable dbname=casbin",
+		dataSourceName: "user=root password=root host=127.0.0.1 port=5432 sslmode=disable dbname=casbin",
 	})
 
 	testAutoSave(t, a)

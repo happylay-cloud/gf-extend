@@ -24,7 +24,10 @@ e, err := gfadapter.NewEnforcer(g.DB())
 e, err := gfadapter.NewEnforcer(g.DB("mysql"))
 
 // 手动注册-自定义数据源
-e, err := gfadapter.NewEnforcer(g.DB("casbin"))
+e, err := gfadapter.NewEnforcer(g.DB("sqlite"))
+
+// 手动注册-自定义数据源
+e, err := gfadapter.NewEnforcer(g.DB("pgsql"))
 ```
 
 ### 解压二进制中单文件到本地

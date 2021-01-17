@@ -16,6 +16,7 @@ import (
 const (
 	sqlite = "sqlite"
 	mysql  = "mysql"
+	pgsql  = "pgsql"
 )
 
 // 从自定义数据库连接中创建适配器
@@ -37,6 +38,14 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 	// 判断当前数据库类型-Mysql
 	if gstr.Equal(mysql, dbType) { // 自动创建mysql数据库casbin_rule表
 		sql := CreateMysqlTable("casbin_rule")
+		if _, err := customDb.Exec(sql); err != nil {
+			return nil, err
+		}
+	}
+
+	// 判断当前数据库类型-Pgsql
+	if gstr.Equal(pgsql, dbType) { // 自动创建pgsql数据库casbin_rule表
+		sql := CreatePgsqlTable("casbin_rule")
 		if _, err := customDb.Exec(sql); err != nil {
 			return nil, err
 		}
@@ -64,11 +73,23 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 	return a, nil
 }
 
-// NewEnforcer 实例化gdb.DB默认数据源casbin执行器
+// NewEnforcer 实例化gf-casbin执行器对象
+//  自动寻找gf框架下默认default分组下gdb.DB数据源。
+//
+//  支持自动注册，自定义分组数据源注册。
+//  目前支持sqlite3、mysql5.7、postgresql数据库。
+//
+//  备注：1.sqlite3、mysql5.7数据库表新增主键自增，postgresql数据库无主键。
+//       2.sqlite3、pgsql需要添加额外驱动
+//         sqlite3驱动：_ "github.com/lib/pq"
+//	       pgsql驱动：_ "github.com/mattn/go-sqlite3"
+//
 //  示例：
 //  e, err := gfadapter.NewEnforcer()
 //  e, err := gfadapter.NewEnforcer(g.DB())
-//  e, err := gfadapter.NewEnforcer(g.DB("casbin"))
+//  e, err := gfadapter.NewEnforcer(g.DB("sqlite"))
+//  e, err := gfadapter.NewEnforcer(g.DB("mysql"))
+//  e, err := gfadapter.NewEnforcer(g.DB("pgsql"))
 func NewEnforcer(customDb ...gdb.DB) (*casbin.Enforcer, error) {
 
 	// rbac_model.conf配置字符串

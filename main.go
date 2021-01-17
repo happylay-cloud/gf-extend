@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 
 	"fmt"
@@ -27,9 +28,9 @@ func main() {
 func testNewCasbin(r *ghttp.Request) {
 
 	// 实例化casbin执行器
-	//e, err := gfadapter.NewEnforcer(g.DB("mysql"))
-	e, err := gfadapter.NewEnforcer(g.DB("casbin"))
-
+	e, err := gfadapter.NewEnforcer(g.DB("mysql"))
+	//e, err := gfadapter.NewEnforcer(g.DB("sqlite"))
+	//e, err := gfadapter.NewEnforcer(g.DB("pgsql"))
 	if err != nil {
 		gfres.FailWithEx(r, err.Error())
 		return

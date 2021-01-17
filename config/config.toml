@@ -8,9 +8,12 @@
     [database.default]
         link = "sqlite:./db/sqlite3.db"
         debug = true
-    [database.casbin]
+    [database.sqlite]
         link = "sqlite:./db/sqlite3.db"
         debug = true
     [database.mysql]
         link = "mysql:root:root@tcp(127.0.0.1:3306)/casbin"
+        debug = true
+    [database.pgsql]
+        link = "pgsql: user=root password=root sslmode=disable host=127.0.0.1 port=5432 dbname=casbin"
         debug = true
