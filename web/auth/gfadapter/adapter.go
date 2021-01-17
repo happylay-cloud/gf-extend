@@ -11,7 +11,7 @@ import (
 )
 
 type CasbinRule struct {
-	PType string `json:"ptype"`
+	PType string `json:"pType"`
 	V0    string `json:"v0"`
 	V1    string `json:"v1"`
 	V2    string `json:"v2"`
@@ -141,7 +141,7 @@ func loadPolicyLine(line CasbinRule, model model.Model) {
 // LoadPolicy 从数据库加载所有策略规则。（必须实现此方法）
 func (a *Adapter) LoadPolicy(model model.Model) error {
 	// 打印日志
-	g.Log().Line(false).Debug("从数据库中加载策略")
+	g.Log().Line(false).Debug("从数据库加载所有策略规则")
 
 	var lines []CasbinRule
 

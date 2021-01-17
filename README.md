@@ -3,7 +3,7 @@ GoFrame框架扩展工具包
 
 ### **安装**
 
-> go get -u -v github.com/happylay-cloud/gf-extend
+> go get -u -v -d github.com/happylay-cloud/gf-extend
 
 或
 
@@ -11,7 +11,17 @@ GoFrame框架扩展工具包
 
 ### 自动实例化gf-casbin执行器
 ```
+// 自动注册
 e, err := gfadapter.NewEnforcer()
+
+// 手动注册
+e, err := gfadapter.NewEnforcer(g.DB())
+
+// 手动注册-自定义数据源
+e, err := gfadapter.NewEnforcer(g.DB("mysql"))
+
+// 手动注册-自定义数据源
+e, err := gfadapter.NewEnforcer(g.DB("casbin"))
 ```
 
 ### 解压二进制中单文件到本地
