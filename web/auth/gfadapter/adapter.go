@@ -145,7 +145,9 @@ func (a *Adapter) LoadPolicy(model model.Model) error {
 
 	var lines []CasbinRule
 
-	if err := a.db.Table(a.tableName).Scan(&lines); err != nil {
+	if err := a.db.Table(a.tableName).
+		Fields("p_type", "v0", "v1", "v2", "v3", "v4", "v5").
+		Scan(&lines); err != nil {
 		return err
 	}
 
