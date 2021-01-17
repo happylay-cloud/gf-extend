@@ -27,7 +27,9 @@ func main() {
 func testNewCasbin(r *ghttp.Request) {
 
 	// 实例化casbin执行器
+	//e, err := gfadapter.NewEnforcer(g.DB("mysql"))
 	e, err := gfadapter.NewEnforcer(g.DB("casbin"))
+
 	if err != nil {
 		gfres.FailWithEx(r, err.Error())
 		return

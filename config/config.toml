@@ -11,3 +11,6 @@
     [database.casbin]
         link = "sqlite:./db/sqlite3.db"
         debug = true
+    [database.mysql]
+        link = "mysql:root:root@tcp(127.0.0.1:3306)/casbin"
+        debug = true

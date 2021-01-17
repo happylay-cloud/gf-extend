@@ -26,13 +26,22 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 
 	//  TODO 需要对不同类型数据库进行处理
 
-	// 判断当前数据库类型
+	// 判断当前数据库类型-Sqlite3
 	if gstr.Equal(sqlite, dbType) { // 自动创建sqlite3数据库casbin_rule表
 		sql := CreateSqlite3Table("casbin_rule")
 		if _, err := customDb.Exec(sql); err != nil {
 			return nil, err
 		}
 	}
+
+	// 判断当前数据库类型-Mysql
+	if gstr.Equal(mysql, dbType) { // 自动创建mysql数据库casbin_rule表
+		sql := CreateMysqlTable("casbin_rule")
+		if _, err := customDb.Exec(sql); err != nil {
+			return nil, err
+		}
+	}
+
 	// TODO ------------------------------------------------------------
 	// 1.添加事务操作
 	// 2.修改自动保存逻辑
