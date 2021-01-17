@@ -7,6 +7,7 @@ import (
 	"github.com/casbin/casbin/v2/model"
 	"github.com/casbin/casbin/v2/persist"
 	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/frame/g"
 )
 
 type CasbinRule struct {
@@ -104,7 +105,7 @@ func (a *Adapter) close() error {
 }
 
 func (a *Adapter) createTable() error {
-	_, err := a.db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (ptype VARCHAR(10), v0 VARCHAR(256), v1 VARCHAR(256), v2 VARCHAR(256), v3 VARCHAR(256), v4 VARCHAR(256), v5 VARCHAR(256))", a.tableName))
+	_, err := a.db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (p_type VARCHAR(10), v0 VARCHAR(256), v1 VARCHAR(256), v2 VARCHAR(256), v3 VARCHAR(256), v4 VARCHAR(256), v5 VARCHAR(256))", a.tableName))
 	return err
 }
 
@@ -139,6 +140,9 @@ func loadPolicyLine(line CasbinRule, model model.Model) {
 
 // LoadPolicy 从数据库加载策略。
 func (a *Adapter) LoadPolicy(model model.Model) error {
+	// 打印日志
+	g.Log().Line(false).Debug("从数据库中加载策略")
+
 	var lines []CasbinRule
 
 	if err := a.db.Table(a.tableName).Scan(&lines); err != nil {
@@ -152,10 +156,10 @@ func (a *Adapter) LoadPolicy(model model.Model) error {
 	return nil
 }
 
-func savePolicyLine(ptype string, rule []string) CasbinRule {
+func savePolicyLine(pType string, rule []string) CasbinRule {
 	line := CasbinRule{}
 
-	line.PType = ptype
+	line.PType = pType
 	if len(rule) > 0 {
 		line.V0 = rule[0]
 	}
@@ -180,6 +184,9 @@ func savePolicyLine(ptype string, rule []string) CasbinRule {
 
 // SavePolicy 将策略保存到数据库。
 func (a *Adapter) SavePolicy(model model.Model) error {
+	// 打印日志
+	g.Log().Line(false).Debug("自动保存策略")
+
 	// TODO 需要修改，不能直接删表
 	err := a.dropTable()
 	if err != nil {
@@ -214,24 +221,30 @@ func (a *Adapter) SavePolicy(model model.Model) error {
 }
 
 // AddPolicy 将策略规则添加到存储中。
-func (a *Adapter) AddPolicy(sec string, ptype string, rule []string) error {
-	line := savePolicyLine(ptype, rule)
+func (a *Adapter) AddPolicy(sec string, pType string, rule []string) error {
+	// 打印日志
+	g.Log().Line(false).Debug("持久化策略：", sec, pType, rule)
+	line := savePolicyLine(pType, rule)
 	_, err := a.db.Table(a.tableName).Data(&line).Insert()
 	return err
 }
 
 // RemovePolicy 从存储中删除策略规则。
-func (a *Adapter) RemovePolicy(sec string, ptype string, rule []string) error {
-	line := savePolicyLine(ptype, rule)
+func (a *Adapter) RemovePolicy(sec string, pType string, rule []string) error {
+	g.Log().Line(false).Debug("删除持久化策略：", sec, pType, rule)
+	line := savePolicyLine(pType, rule)
 	err := rawDelete(a, line)
 	return err
 }
 
 // RemoveFilteredPolicy 从存储中删除匹配过滤器的策略规则。
-func (a *Adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int, fieldValues ...string) error {
+func (a *Adapter) RemoveFilteredPolicy(sec string, pType string, fieldIndex int, fieldValues ...string) error {
+	// 打印日志
+	g.Log().Line(false).Debug("过滤指定字段并删除相应策略：", sec, pType, fieldIndex, fieldValues)
+
 	line := CasbinRule{}
 
-	line.PType = ptype
+	line.PType = pType
 	if fieldIndex <= 0 && 0 < fieldIndex+len(fieldValues) {
 		line.V0 = fieldValues[0-fieldIndex]
 	}
@@ -257,7 +270,7 @@ func (a *Adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int,
 func rawDelete(a *Adapter, line CasbinRule) error {
 	db := a.db.Table(a.tableName)
 
-	db.Where("ptype = ?", line.PType)
+	db.Where("p_type = ?", line.PType)
 	if line.V0 != "" {
 		db.Where("v0 = ?", line.V0)
 	}
