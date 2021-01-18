@@ -3,10 +3,9 @@ package gfadapter
 import (
 	"sync"
 
-	"github.com/gogf/gf/frame/g"
-
 	"github.com/casbin/casbin/v2"
 	"github.com/gogf/gf/database/gdb"
+	"github.com/gogf/gf/frame/g"
 )
 
 // 单例casbin同步执行器
@@ -60,8 +59,9 @@ func newSyncedEnforcer(db gdb.DB) (*casbin.SyncedEnforcer, error) {
 
 	// 打印日志
 	g.Log().Line().Debug("实例化NewEnforcerBean")
+	// TODO 需要添加动态模型配置，从配置文件中读取，获取不到则使用默认配置
 	// 从字符串中加载模型
-	modelFromString, _ := getNewModelModelFromString()
+	modelFromString, _ := getDefaultNewModel()
 	// 创建gf默认数据源适配器
 	if adapter, err := NewAdapterByGdb(db); err == nil {
 		// 调用已有连接的适配器中的构造器

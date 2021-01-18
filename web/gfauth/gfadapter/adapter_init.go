@@ -3,14 +3,12 @@ package gfadapter
 import (
 	"runtime"
 
-	"github.com/gogf/gf/text/gstr"
-
+	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/errors/gerror"
 	"github.com/gogf/gf/frame/g"
-
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
+	"github.com/gogf/gf/text/gstr"
 )
 
 const (
@@ -94,8 +92,9 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 //  e, err := gfadapter.NewEnforcer(g.DB("pgsql"))
 func NewEnforcer(customDb ...gdb.DB) (*casbin.Enforcer, error) {
 
-	// 从字符串中加载模型
-	modelFromString, _ := getNewModelModelFromString()
+	// TODO 需要添加动态模型配置，从配置文件中读取，获取不到则使用默认配置
+	// 加载casbin默认模型
+	modelFromString, _ := getDefaultNewModel()
 
 	// 定义数据源
 	var db gdb.DB
@@ -126,8 +125,9 @@ func NewEnforcer(customDb ...gdb.DB) (*casbin.Enforcer, error) {
 
 }
 
-// 加载casbin模型
-func getNewModelModelFromString() (model.Model, error) {
+// 加载casbin默认rbac模型
+// rbac_model.conf
+func getDefaultNewModel() (model.Model, error) {
 	// 打印日志
 	g.Log().Line(false).Debug("加载casbin模型")
 	// 配置rbac_model.conf字符串

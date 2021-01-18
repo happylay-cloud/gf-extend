@@ -10,14 +10,6 @@ import (
 	"github.com/gogf/gf/frame/g"
 )
 
-func TestNewEnforcer(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		fmt.Println("###################################🔥开始新NewEnforcer测试START###################################")
-		testNewEnforcer(t)
-		fmt.Println("###################################🚀结束新NewEnforcer测试END#####################################")
-	}
-}
-
 // 测试gf-casbin适配器
 func testNewEnforcer(t *testing.T) {
 
@@ -101,14 +93,6 @@ func testNewEnforcer(t *testing.T) {
 	g.Dump(m)
 
 	// Output:
-}
-
-func TestTestNewEnforcerBean(t *testing.T) {
-	for i := 0; i < 10; i++ {
-		fmt.Println("###################################🔥开始新NewEnforcerBean测试START###################################")
-		testNewEnforcerBean(t)
-		fmt.Println("###################################🚀结束新NewEnforcerBean测试END####################################")
-	}
 }
 
 // 测试gf-casbin适配器（单例）
@@ -196,4 +180,22 @@ func testNewEnforcerBean(t *testing.T) {
 	g.Dump(m)
 
 	// Output:
+}
+
+// 测试非单例模式
+func TestNewEnforcer(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		fmt.Println("###################################🔥开始新NewEnforcer测试START###################################")
+		testNewEnforcer(t)
+		fmt.Println("###################################🚀结束新NewEnforcer测试END#####################################")
+	}
+}
+
+// 测试单例模式
+func TestTestNewEnforcerBean(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		fmt.Println("###################################🔥开始新NewEnforcerBean测试START###################################")
+		testNewEnforcerBean(t)
+		fmt.Println("###################################🚀结束新NewEnforcerBean测试END####################################")
+	}
 }
