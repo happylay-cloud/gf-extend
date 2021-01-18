@@ -10,8 +10,16 @@ import (
 	"github.com/gogf/gf/frame/g"
 )
 
-// 测试casbin适配器
 func TestNewEnforcer(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		fmt.Println("###################################🔥开始新NewEnforcer测试START###################################")
+		testNewEnforcer(t)
+		fmt.Println("###################################🚀结束新NewEnforcer测试END#####################################")
+	}
+}
+
+// 测试gf-casbin适配器
+func testNewEnforcer(t *testing.T) {
 
 	// 实例化casbin执行器
 	//e, err := NewEnforcer(g.DB("pgsql"))
@@ -95,8 +103,16 @@ func TestNewEnforcer(t *testing.T) {
 	// Output:
 }
 
-// 测试casbin适配器（单例）
-func TestNewEnforcerBean(t *testing.T) {
+func TestTestNewEnforcerBean(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		fmt.Println("###################################🔥开始新NewEnforcerBean测试START###################################")
+		testNewEnforcerBean(t)
+		fmt.Println("###################################🚀结束新NewEnforcerBean测试END####################################")
+	}
+}
+
+// 测试gf-casbin适配器（单例）
+func testNewEnforcerBean(t *testing.T) {
 
 	// 实例化casbin执行器
 	//e, err := NewEnforcerBean(g.DB("pgsql"))
