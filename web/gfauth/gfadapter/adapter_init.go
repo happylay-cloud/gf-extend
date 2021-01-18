@@ -94,26 +94,8 @@ func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 //  e, err := gfadapter.NewEnforcer(g.DB("pgsql"))
 func NewEnforcer(customDb ...gdb.DB) (*casbin.Enforcer, error) {
 
-	// rbac_model.conf配置字符串
-	rbacModelText :=
-		`
-[request_definition]
-r = sub, obj, act
-
-[policy_definition]
-p = sub, obj, act
-
-[role_definition]
-g = _, _
-
-[policy_effect]
-e = some(where (p.eft == allow))
-
-[matchers]
-m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
-`
 	// 从字符串中加载模型
-	modelFromString, _ := model.NewModelFromString(rbacModelText)
+	modelFromString, _ := getNewModelModelFromString()
 
 	// 定义数据源
 	var db gdb.DB
@@ -142,4 +124,29 @@ m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
 		return nil, err
 	}
 
+}
+
+// 加载casbin模型
+func getNewModelModelFromString() (model.Model, error) {
+	// 打印日志
+	g.Log().Line(false).Debug("加载casbin模型")
+	// 配置rbac_model.conf字符串
+	rbacModelText := `
+[request_definition]
+r = sub, obj, act
+
+[policy_definition]
+p = sub, obj, act
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+`
+	// 从字符串中加载模型
+	return model.NewModelFromString(rbacModelText)
 }

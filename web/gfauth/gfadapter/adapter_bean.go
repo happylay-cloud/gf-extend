@@ -3,7 +3,6 @@ package gfadapter
 import (
 	"sync"
 
-	"github.com/casbin/casbin/v2/model"
 	"github.com/gogf/gf/frame/g"
 
 	"github.com/casbin/casbin/v2"
@@ -61,26 +60,8 @@ func newSyncedEnforcer(db gdb.DB) (*casbin.SyncedEnforcer, error) {
 
 	// 打印日志
 	g.Log().Line().Debug("实例化NewEnforcerBean")
-	// rbac_model.conf配置字符串
-	rbacModelText :=
-		`
-[request_definition]
-r = sub, obj, act
-
-[policy_definition]
-p = sub, obj, act
-
-[role_definition]
-g = _, _
-
-[policy_effect]
-e = some(where (p.eft == allow))
-
-[matchers]
-m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
-`
 	// 从字符串中加载模型
-	modelFromString, _ := model.NewModelFromString(rbacModelText)
+	modelFromString, _ := getNewModelModelFromString()
 	// 创建gf默认数据源适配器
 	if adapter, err := NewAdapterByGdb(db); err == nil {
 		// 调用已有连接的适配器中的构造器
