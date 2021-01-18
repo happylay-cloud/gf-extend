@@ -1,18 +1,38 @@
-package gfcasbin
+package gfadapter
 
 import (
 	"fmt"
+	"testing"
 
-	"github.com/casbin/casbin/v2"
+	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/gogf/gf/frame/g"
 )
 
 // 测试casbin适配器
-func CabinAdapterTest(e *casbin.Enforcer) {
+func TestNewEnforcer(t *testing.T) {
 
+	// 实例化casbin执行器
+	//e, err := NewEnforcer(g.DB("pgsql"))
+	//e, err := NewEnforcer(g.DB("mysql"))
+	e, err := NewEnforcer(g.DB("sqlite"))
+
+	if err != nil {
+		g.Log().Error(err)
+		return
+	}
 	e.EnableAutoSave(true)
 
 	// 添加策略
 	if ok, _ := e.AddPolicy("admin", "/api/v1/hello", "GET"); !ok {
+		fmt.Println("策略已经存在")
+	} else {
+		fmt.Println("增加成功")
+	}
+
+	// 添加策略
+	if ok, _ := e.AddPolicy("happylay", "/api/v1/hello", "POST"); !ok {
 		fmt.Println("策略已经存在")
 	} else {
 		fmt.Println("增加成功")
@@ -62,15 +82,44 @@ func CabinAdapterTest(e *casbin.Enforcer) {
 		fmt.Println("没有权限")
 	}
 
+	m := g.Map{
+		"sub":   e.GetAllSubjects(),
+		"obj":   e.GetAllObjects(),
+		"act":   e.GetAllActions(),
+		"role":  e.GetAllRoles(),
+		"model": e.GetModel(),
+	}
+
+	g.Dump(m)
+
+	// Output:
 }
 
 // 测试casbin适配器（单例）
-func CabinAdapterBeanTest(e *casbin.SyncedEnforcer) {
+func TestNewEnforcerBean(t *testing.T) {
 
+	// 实例化casbin执行器
+	//e, err := NewEnforcerBean(g.DB("pgsql"))
+	//e, err := NewEnforcerBean(g.DB("mysql"))
+	e, err := NewEnforcerBean(g.DB("sqlite"))
+
+	//e, err := NewEnforcerBean()
+
+	if err != nil {
+		g.Log().Error(err)
+		return
+	}
 	e.EnableAutoSave(true)
 
 	// 添加策略
 	if ok, _ := e.AddPolicy("admin", "/api/v1/hello", "GET"); !ok {
+		fmt.Println("策略已经存在")
+	} else {
+		fmt.Println("增加成功")
+	}
+
+	// 添加策略
+	if ok, _ := e.AddPolicy("happylay", "/api/v1/hello", "POST"); !ok {
 		fmt.Println("策略已经存在")
 	} else {
 		fmt.Println("增加成功")
@@ -120,4 +169,15 @@ func CabinAdapterBeanTest(e *casbin.SyncedEnforcer) {
 		fmt.Println("没有权限")
 	}
 
+	m := g.Map{
+		"sub":   e.GetAllSubjects(),
+		"obj":   e.GetAllObjects(),
+		"act":   e.GetAllActions(),
+		"role":  e.GetAllRoles(),
+		"model": e.GetModel(),
+	}
+
+	g.Dump(m)
+
+	// Output:
 }
