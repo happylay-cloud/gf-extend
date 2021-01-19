@@ -1,12 +1,17 @@
 package gfdto
 
-import "github.com/gogf/gf/util/gconv"
+import (
+	"math"
+
+	"github.com/gogf/gf/util/gconv"
+)
 
 // 通用分页JSON数据结构
 type page struct {
 	PageNum    int         `json:"pageNum"`    // 当前页码
 	PageSize   int         `json:"pageSize"`   // 每页记录数
 	TotalCount int         `json:"totalCount"` // 数据总数
+	PageCount  int         `json:"pageCount"`  // 总分页数
 	List       interface{} `json:"list"`       // 数据集合
 }
 
@@ -21,7 +26,36 @@ func PageData(pageNum, pageSize, totalCount int, list interface{}) *page {
 }
 
 // NewPage 获取分页对象
-func NewPage(pageNum, pageSize int) *page {
+//	@pageNum			当前页码
+//	@pageSize			每页记录数
+//	@handlerErrData 	是否处理异常数据，可选参数，bool类型，false 不处理，true 处理。默认处理。
+func NewPage(pageNum, pageSize int, handlerErrData ...interface{}) *page {
+
+	if len(handlerErrData) > 0 {
+		// 处理异常数据
+		if flag, ok := handlerErrData[0].(bool); ok {
+			if flag {
+				// 异常数据处理
+				if pageNum <= 0 {
+					pageNum = 1
+				}
+
+				if pageSize <= 0 {
+					pageSize = 10
+				}
+			}
+		}
+	} else {
+		// 异常数据处理
+		if pageNum <= 0 {
+			pageNum = 1
+		}
+
+		if pageSize <= 0 {
+			pageSize = 10
+		}
+	}
+
 	return &page{
 		PageNum:    pageNum,
 		PageSize:   pageSize,
@@ -33,13 +67,6 @@ func NewPage(pageNum, pageSize int) *page {
 // LimitPage 获取原生sql分页参数及sql语句
 func (p *page) LimitPage() (page, pageSize int, sql string) {
 
-	// 数据处理
-	if p.PageSize <= 0 {
-		p.PageSize = 1
-	}
-	if p.PageNum <= 0 {
-		p.PageNum = 10
-	}
 	// 计算分页数据
 	page = (p.PageNum - 1) * p.PageSize
 	// 每页大小
@@ -51,19 +78,21 @@ func (p *page) LimitPage() (page, pageSize int, sql string) {
 }
 
 // RedisPage 获取Redis分页
-func (p *page) RedisPage() (page, pageSize int) {
+func (p *page) RedisPage() (start, stop int) {
 
-	// 数据处理
-	if p.PageSize <= 0 {
-		p.PageSize = 1
-	}
-	if p.PageNum <= 0 {
-		p.PageNum = 10
-	}
-	// 计算分页数据
-	page = (p.PageNum - 1) * p.PageSize
-	// 每页大小
-	pageSize = p.PageSize - 1
+	// 计算分页数据-对应redis start
+	start = (p.PageNum - 1) * p.PageSize
+	// 每页大小-对应redis stop
+	stop = start + p.PageSize - 1
 
-	return page, pageSize
+	return start, stop
+}
+
+// CalPageCount 计算分页总数
+func (p *page) CalPageCount(totalCount int) (pageCount int) {
+
+	// 计算分页总数
+	pageCount = int(math.Ceil(float64(totalCount) / float64(p.PageSize)))
+
+	return pageCount
 }
