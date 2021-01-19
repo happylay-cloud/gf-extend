@@ -15,15 +15,22 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func TestJwt(t *testing.T) {
+// 测试生成token
+func TestCreateJwtToken(t *testing.T) {
 
-	//设置载荷数据
+	// 设置载荷数据
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		Username: "admin",
 		Password: "123456",
 		StandardClaims: jwt.StandardClaims{
 			// 默认精确到微妙
-			ExpiresAt: jwt.At(time.Now().Add(60 * time.Second)),
+			//ExpiresAt: jwt.At(time.Now().Add(60 * time.Second)),
+			// 自定义精确到秒
+			ExpiresAt: &jwt.Time{
+				Time: time.Now().Truncate(time.Second),
+			},
+			// 发行人
+			Issuer: "gf-extend",
 		},
 	})
 
@@ -34,9 +41,10 @@ func TestJwt(t *testing.T) {
 
 }
 
-func TestParseJwt(t *testing.T) {
+// 测试解析token
+func TestParseJwtToken(t *testing.T) {
 
-	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiIxMjM0NTYiLCJleHAiOjE2MTEwNjU4ODYuNzI0NzU4fQ.phVojCjOucpyyJhJW1prSZEA1gP6x3F1PBQkRLD7Jew"
+	tokenString := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicGFzc3dvcmQiOiIxMjM0NTYiLCJleHAiOjE2MTEwNjY2MTAuNTg0NjMxLCJpc3MiOiJnZi1leHRlbmQifQ.p1XHBuiVnnFoEHtrEQCmXUAvSv8ilkqUgqOUoVnj7vQ"
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 
