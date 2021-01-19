@@ -49,3 +49,21 @@ func (p *page) LimitPage() (page, pageSize int, sql string) {
 
 	return page, pageSize, sql
 }
+
+// RedisPage 获取Redis分页
+func (p *page) RedisPage() (page, pageSize int) {
+
+	// 数据处理
+	if p.PageSize <= 0 {
+		p.PageSize = 1
+	}
+	if p.PageNum <= 0 {
+		p.PageNum = 10
+	}
+	// 计算分页数据
+	page = (p.PageNum - 1) * p.PageSize
+	// 每页大小
+	pageSize = p.PageSize - 1
+
+	return page, pageSize
+}

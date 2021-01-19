@@ -37,7 +37,12 @@ func TestCreateJwtToken(t *testing.T) {
 	// 使用密钥进行签名
 	tokenString, err := token.SignedString([]byte("secret_key"))
 
-	fmt.Println(tokenString, err)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	fmt.Println(tokenString)
 
 }
 

@@ -235,7 +235,7 @@ func (mw *GfJWTMiddleware) MiddlewareInit() error {
 
 	if mw.Unauthorized == nil {
 		mw.Unauthorized = func(r *ghttp.Request, code int, message string) {
-			r.Response.WriteJson(g.Map{
+			_ = r.Response.WriteJson(g.Map{
 				"code":    code,
 				"message": message,
 			})
@@ -244,7 +244,7 @@ func (mw *GfJWTMiddleware) MiddlewareInit() error {
 
 	if mw.LoginResponse == nil {
 		mw.LoginResponse = func(r *ghttp.Request, code int, token string, expire time.Time) {
-			r.Response.WriteJson(g.Map{
+			_ = r.Response.WriteJson(g.Map{
 				"code":   http.StatusOK,
 				"token":  token,
 				"expire": expire.Format(time.RFC3339),
@@ -254,7 +254,7 @@ func (mw *GfJWTMiddleware) MiddlewareInit() error {
 
 	if mw.RefreshResponse == nil {
 		mw.RefreshResponse = func(r *ghttp.Request, code int, token string, expire time.Time) {
-			r.Response.WriteJson(g.Map{
+			_ = r.Response.WriteJson(g.Map{
 				"code":   http.StatusOK,
 				"token":  token,
 				"expire": expire.Format(time.RFC3339),
@@ -264,7 +264,7 @@ func (mw *GfJWTMiddleware) MiddlewareInit() error {
 
 	if mw.LogoutResponse == nil {
 		mw.LogoutResponse = func(r *ghttp.Request, code int) {
-			r.Response.WriteJson(g.Map{
+			_ = r.Response.WriteJson(g.Map{
 				"code":    http.StatusOK,
 				"message": "success",
 			})
@@ -641,7 +641,8 @@ func (mw *GfJWTMiddleware) ParseToken(r *ghttp.Request) (*jwt.Token, error) {
 		return nil, err
 	}
 
-	return jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+	// 解析token
+	parse, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if jwt.GetSigningMethod(mw.SigningAlgorithm) != t.Method {
 			return nil, ErrInvalidSigningAlgorithm
 		}
@@ -649,11 +650,15 @@ func (mw *GfJWTMiddleware) ParseToken(r *ghttp.Request) (*jwt.Token, error) {
 			return mw.pubKey, nil
 		}
 
-		// 如果有效，保存令牌字符串
-		r.SetParam("JWT_TOKEN", token)
-
 		return mw.Key, nil
 	})
+
+	if err == nil {
+		// 如果有效，保存令牌字符串
+		r.SetParam("JWT_TOKEN", token)
+	}
+
+	return parse, err
 }
 
 func (mw *GfJWTMiddleware) unauthorized(r *ghttp.Request, code int, message string) {
