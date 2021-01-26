@@ -1,0 +1,10 @@
+{
+  "Name":"Gf-Plus Tcp网络通信",
+  "Host":"127.0.0.1",
+  "TcpPort":2021,
+  "MaxConn":2,
+  "MaxPacketSize":100000,
+  "WorkerPoolSize":10,
+  "LogDir": "./log",
+  "LogFile":"tcp.log"
+}
