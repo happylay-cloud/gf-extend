@@ -22,7 +22,7 @@ type Connection struct {
 	ConnID uint32
 	// 消息管理MsgId和对应处理方法的消息管理模块
 	MsgHandler ziface.IMsgHandle
-	// 告知该链接已经退出/停止的channel
+	// 告知该连接已经退出/停止的channel
 	ctx    context.Context
 	cancel context.CancelFunc
 	// 无缓冲管道，用于读、写两个goroutine之间的消息通信
@@ -31,7 +31,7 @@ type Connection struct {
 	msgBuffChan chan []byte
 
 	sync.RWMutex
-	// 链接属性
+	// 连接属性
 	property map[string]interface{}
 	// 保护当前property的锁
 	propertyLock sync.Mutex
@@ -53,12 +53,12 @@ func NewConntion(server ziface.IServer, conn *net.TCPConn, connID uint32, msgHan
 		property:    make(map[string]interface{}),
 	}
 
-	// 将新创建的Conn添加到链接管理中
+	// 将新创建的Conn添加到连接管理中
 	c.TcpServer.GetConnMgr().Add(c)
 	return c
 }
 
-// StartWriter 写消息Goroutine，用户将数据发送给客户端
+// StartWriter 写消息协程，用户将数据发送给客户端
 func (c *Connection) StartWriter() {
 	fmt.Println("[写协程正在运行]")
 	defer fmt.Println(c.RemoteAddr().String(), "[写连接退出！]")
@@ -89,7 +89,7 @@ func (c *Connection) StartWriter() {
 	}
 }
 
-// 读消息Goroutine，用于从客户端中读取数据
+// StartReader 读消息协程，用于从客户端中读取数据
 func (c *Connection) StartReader() {
 	fmt.Println("[读协程正在运行]")
 	defer fmt.Println(c.RemoteAddr().String(), "[读连接退出！]")
@@ -146,7 +146,7 @@ func (c *Connection) StartReader() {
 	}
 }
 
-// 启动连接，让当前连接开始工作
+// Start 启动连接，让当前连接开始工作
 func (c *Connection) Start() {
 	c.ctx, c.cancel = context.WithCancel(context.Background())
 	// 1、开启用户从客户端读取数据流程的Goroutine
@@ -157,50 +157,51 @@ func (c *Connection) Start() {
 	c.TcpServer.CallOnConnStart(c)
 }
 
-// 停止连接，结束当前连接状态M
+// Stop 停止连接，结束当前连接状态M
 func (c *Connection) Stop() {
-	fmt.Println("连接 Stop()... ConnID = ", c.ConnID)
+	fmt.Println("连接Stop()... ConnID = ", c.ConnID)
 
 	c.Lock()
 	defer c.Unlock()
 
-	// 如果用户注册了该链接的关闭回调业务，那么在此刻应该显示调用
+	// 如果用户注册了该连接的关闭回调业务，那么在此刻应该显示调用
 	c.TcpServer.CallOnConnStop(c)
 
-	// 如果当前链接已经关闭
+	// 如果当前连接已经关闭
 	if c.isClosed == true {
 		return
 	}
 	c.isClosed = true
 
-	// 关闭socket链接
+	// 关闭socket连接
 	c.Conn.Close()
+
 	// 关闭Writer
 	c.cancel()
 
-	// 将链接从连接管理器中删除
+	// 将连接从连接管理器中删除
 	c.TcpServer.GetConnMgr().Remove(c)
 
-	// 关闭该链接全部管道
+	// 关闭该连接全部管道
 	close(c.msgBuffChan)
 }
 
-// 从当前连接获取原始的socket TCPConn
+// GetTCPConnection 从当前连接获取原始的socket TCPConn
 func (c *Connection) GetTCPConnection() *net.TCPConn {
 	return c.Conn
 }
 
-// 获取当前连接ID
+// GetConnID 获取当前连接ID
 func (c *Connection) GetConnID() uint32 {
 	return c.ConnID
 }
 
-// 获取远程客户端地址信息
+// RemoteAddr 获取远程客户端地址信息
 func (c *Connection) RemoteAddr() net.Addr {
 	return c.Conn.RemoteAddr()
 }
 
-// 直接将Message数据发送数据给远程的TCP客户端
+// SendMsg 直接将Message数据发送数据给远程的TCP客户端
 func (c *Connection) SendMsg(msgId uint32, data []byte) error {
 	c.RLock()
 	if c.isClosed == true {
@@ -245,7 +246,7 @@ func (c *Connection) SendBuffMsg(msgId uint32, data []byte) error {
 	return nil
 }
 
-// 设置链接属性
+// SetProperty 设置连接属性
 func (c *Connection) SetProperty(key string, value interface{}) {
 	c.propertyLock.Lock()
 	defer c.propertyLock.Unlock()
@@ -253,7 +254,7 @@ func (c *Connection) SetProperty(key string, value interface{}) {
 	c.property[key] = value
 }
 
-// 获取链接属性
+// GetProperty 获取连接属性
 func (c *Connection) GetProperty(key string) (interface{}, error) {
 	c.propertyLock.Lock()
 	defer c.propertyLock.Unlock()
@@ -265,7 +266,7 @@ func (c *Connection) GetProperty(key string) (interface{}, error) {
 	}
 }
 
-// 移除链接属性
+// RemoveProperty 移除连接属性
 func (c *Connection) RemoveProperty(key string) {
 	c.propertyLock.Lock()
 	defer c.propertyLock.Unlock()

@@ -14,8 +14,7 @@ var gfPlusLogo = `
 ██║  ███╗█████╗█████╗██████╔╝██║     ██║   ██║███████╗
 ██║   ██║██╔══╝╚════╝██╔═══╝ ██║     ██║   ██║╚════██║
 ╚██████╔╝██║         ██║     ███████╗╚██████╔╝███████║
- ╚═════╝ ╚═╝         ╚═╝     ╚══════╝ ╚═════╝ ╚══════╝
-`
+ ╚═════╝ ╚═╝         ╚═╝     ╚══════╝ ╚═════╝ ╚══════╝`
 var topLine = `┌───────────────────────────────────────────────────┐`
 var borderLine = `│`
 var bottomLine = `└───────────────────────────────────────────────────┘`
@@ -32,7 +31,7 @@ type Server struct {
 	Port int
 	// 当前Server的消息管理模块，用来绑定MsgId和对应的处理方法
 	msgHandler ziface.IMsgHandle
-	// 当前Server的链接管理器
+	// 当前Server的连接管理器
 	ConnMgr ziface.IConnManager
 	// 该Server的连接创建时Hook函数
 	OnConnStart func(conn ziface.IConnection)
@@ -61,7 +60,7 @@ func NewServer() ziface.IServer {
 func (s *Server) Start() {
 	fmt.Printf("[启动] TCP服务名称：%s\n", s.Name)
 
-	// 开启一个go去做服务端Linster业务
+	// 开启一个go去做服务端Listener业务
 	go func() {
 		// 0、启动worker工作池机制
 		s.msgHandler.StartWorkerPool()
@@ -95,7 +94,7 @@ func (s *Server) Start() {
 				fmt.Println("接收客户端连接错误：", err)
 				continue
 			}
-			fmt.Println("获取连接远程地址 addr = ", conn.RemoteAddr().String())
+			fmt.Println("获取连接远程地址 addr =", conn.RemoteAddr().String())
 
 			// 3.2、设置服务器最大连接控制,如果超过最大连接，那么则关闭此新的连接
 			if s.ConnMgr.Len() >= zutils.GlobalObject.MaxConn {
@@ -107,7 +106,7 @@ func (s *Server) Start() {
 			dealConn := NewConntion(s, conn, cid, s.msgHandler)
 			cid++
 
-			// 3.4、启动当前链接的处理业务
+			// 3.4、启动当前连接的处理业务
 			go dealConn.Start()
 		}
 	}()
@@ -117,7 +116,7 @@ func (s *Server) Start() {
 func (s *Server) Stop() {
 	fmt.Println("[停止] TCP服务，服务名称：", s.Name)
 
-	// 将其他需要清理的连接信息或者其他信息 也要一并停止或者清理
+	// 将其他需要清理的连接信息或者其他信息，也要一并停止或者清理
 	s.ConnMgr.ClearConn()
 }
 
@@ -125,18 +124,18 @@ func (s *Server) Stop() {
 func (s *Server) Serve() {
 	s.Start()
 
-	// TODO Server.Serve() 是否在启动服务的时候 还要处理其他的事情呢 可以在这里添加
+	// TODO Server.Serve()是否在启动服务的时候，还要处理其他的事情，可以在这里添加
 
-	// 阻塞,否则主Go退出，listenner的go将会退出
+	// 阻塞，否则主Go退出，监听器listener的go将会退出
 	select {}
 }
 
-// AddRouter 路由功能：给当前服务注册一个路由业务方法，供客户端链接处理使用
+// AddRouter 路由功能：给当前服务注册一个路由业务方法，供客户端连接处理使用
 func (s *Server) AddRouter(msgId uint32, router ziface.IRouter) {
 	s.msgHandler.AddRouter(msgId, router)
 }
 
-// GetConnMgr 得到链接管理
+// GetConnMgr 得到连接管理
 func (s *Server) GetConnMgr() ziface.IConnManager {
 	return s.ConnMgr
 }

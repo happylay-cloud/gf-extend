@@ -14,20 +14,20 @@ type ConnManager struct {
 	connLock    sync.RWMutex                  // 读写连接的读写锁
 }
 
-// NewConnManager 创建一个链接管理
+// NewConnManager 创建一个连接管理
 func NewConnManager() *ConnManager {
 	return &ConnManager{
 		connections: make(map[uint32]ziface.IConnection),
 	}
 }
 
-// Add 添加链接
+// Add 添加连接
 func (connMgr *ConnManager) Add(conn ziface.IConnection) {
 	// 保护共享资源Map 加写锁
 	connMgr.connLock.Lock()
 	defer connMgr.connLock.Unlock()
 
-	// 将conn连接添加到ConnMananger中
+	// 将conn连接添加到ConnManager中
 	connMgr.connections[conn.GetConnID()] = conn
 
 	fmt.Println("添加连接到连接管理器成功：当前连接数", connMgr.Len())
@@ -45,7 +45,7 @@ func (connMgr *ConnManager) Remove(conn ziface.IConnection) {
 	fmt.Println("删除连接 ConnID=", conn.GetConnID(), "成功：当前连接数", connMgr.Len())
 }
 
-// Get 利用ConnID获取链接
+// Get 利用ConnID获取连接
 func (connMgr *ConnManager) Get(connID uint32) (ziface.IConnection, error) {
 	// 保护共享资源Map 加读锁
 	connMgr.connLock.RLock()
