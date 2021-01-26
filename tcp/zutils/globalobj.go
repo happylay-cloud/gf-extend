@@ -13,7 +13,7 @@ import (
 type GlobalObj struct {
 
 	// 服务器配置
-	TcpServer ziface.IServer // 当前Zinx的全局Server对象
+	TcpServer ziface.IServer // 当前gf-plus的全局Server对象
 	Host      string         // 当前服务器主机IP
 	TcpPort   int            // 当前服务器主机监听端口号
 	Name      string         // 当前服务器名称
@@ -51,28 +51,28 @@ func PathExists(path string) (bool, error) {
 }
 
 // 读取用户的配置文件
-func (g *GlobalObj) Reload() {
+func (global *GlobalObj) Reload() {
 
-	if confFileExists, _ := PathExists(g.ConfFilePath); confFileExists != true {
-		//fmt.Println("Config File ", g.ConfFilePath , " is not exist!!")
+	if confFileExists, _ := PathExists(global.ConfFilePath); confFileExists != true {
+		//fmt.Println("配置文件", global.ConfFilePath , "不存在！")
 		return
 	}
 
-	data, err := ioutil.ReadFile(g.ConfFilePath)
+	data, err := ioutil.ReadFile(global.ConfFilePath)
 	if err != nil {
 		panic(err)
 	}
 	// 将json数据解析到struct中
-	err = json.Unmarshal(data, g)
+	err = json.Unmarshal(data, global)
 	if err != nil {
 		panic(err)
 	}
 
 	// 日志设置
-	if g.LogFile != "" {
-		zlog.SetLogFile(g.LogDir, g.LogFile)
+	if global.LogFile != "" {
+		zlog.SetLogFile(global.LogDir, global.LogFile)
 	}
-	if g.LogDebugClose == true {
+	if global.LogDebugClose == true {
 		zlog.CloseDebug()
 	}
 }
@@ -85,8 +85,8 @@ func init() {
 	}
 	// 初始化GlobalObject变量，设置一些默认值
 	GlobalObject = &GlobalObj{
-		Name:             "Gg-Plus TcpServerApp",
-		Version:          "V1.0.0",
+		Name:             "Gf-Plus TcpServerApp",
+		Version:          "V1.1.0",
 		TcpPort:          2021,
 		Host:             "0.0.0.0",
 		MaxConn:          12000,
