@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/happylay-cloud/gf-extend/tcp/zlog"
+	"github.com/happylay-cloud/gf-extend/net/tcp/zlog"
 )
 
 // 触发函数

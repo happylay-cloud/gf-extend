@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/happylay-cloud/gf-extend/tcp/zlog"
+	"github.com/happylay-cloud/gf-extend/net/tcp/zlog"
 )
 
 // DelayFunc 定义一个延迟调用函数

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/happylay-cloud/gf-extend/tcp/ziface"
-	"github.com/happylay-cloud/gf-extend/tcp/zutils"
+	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/tcp/zutils"
 )
 
 var gfPlusLogo = `                                        

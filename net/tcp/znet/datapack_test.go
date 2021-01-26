@@ -18,7 +18,7 @@ func TestDataPack(t *testing.T) {
 		return
 	}
 
-	// 创建服务器gotoutine，负责从客户端goroutine读取粘包的数据，然后进行解析
+	// 创建服务器goroutine，负责从客户端goroutine读取粘包的数据，然后进行解析
 	go func() {
 		for {
 			conn, err := listener.Accept()

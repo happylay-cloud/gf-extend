@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/happylay-cloud/gf-extend/tcp/znet"
+	"github.com/happylay-cloud/gf-extend/net/tcp/znet"
 )
 
 // TestTcpClient 模拟客户端

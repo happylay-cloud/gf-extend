@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"io"
 	"net"
 	"sync"
 
-	"github.com/happylay-cloud/gf-extend/tcp/ziface"
-	"github.com/happylay-cloud/gf-extend/tcp/zutils"
+	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/tcp/zutils"
 )
 
 type Connection struct {

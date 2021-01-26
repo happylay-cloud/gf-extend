@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/happylay-cloud/gf-extend/tcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
 )
 
 // ConnManager 连接管理模块
