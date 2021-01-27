@@ -9,7 +9,7 @@ type ITcpServer interface {
 	// 开启业务服务方法
 	Serve()
 	// 路由功能：给当前服务注册一个路由业务方法，供客户端连接处理使用
-	AddRouter(handlerRouter int64, router ITcpRouter)
+	AddRouter(handlerRouter string, router ITcpRouter)
 	// 获取连接管理
 	GetConnMgr() ITcpConnManager
 	// 设置该Server的连接创建时Hook函数

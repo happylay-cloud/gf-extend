@@ -1,7 +1,7 @@
 package hiface
 
-// ITcpDataHandle 消息管理抽象层
-type ITcpDataHandle interface {
+// ITcpPkgHandle 消息管理抽象层
+type ITcpPkgHandle interface {
 	// 马上以非阻塞方式处理数据包
 	DoPkgHandler(request ITcpRequest)
 	// 为数据包添加具体的处理逻辑
