@@ -47,6 +47,12 @@ func NewAcceptPackage() *Package {
 	return &Package{}
 }
 
+// GetHandlerRouter 获取路由（即消息处理器）
+func (p *Package) GetHandlerRouter() string {
+	// TODO 保留
+	return "1"
+}
+
 // NewPackage 构建数据包封包对象
 //  @dataType 0x00：none，0x01：json，0x02：bin
 //  @data 数据内容
@@ -71,12 +77,6 @@ func NewPackage(dataType byte, data []byte) *Package {
 	}
 
 	return p
-}
-
-// GetHandlerRouter 获取路由（即消息处理器）
-func (p *Package) GetHandlerRouter() string {
-	// TODO 保留
-	return ""
 }
 
 // GetPkgHeadLen 获取数据包消息头长度

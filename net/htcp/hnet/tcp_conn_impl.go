@@ -2,8 +2,8 @@ package hnet
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"net"
 	"sync"
 
@@ -57,8 +57,8 @@ func NewTcpConnection(server hiface.ITcpServer, conn *net.TCPConn, connID int64,
 
 // StartWriter 写消息协程，用户将数据发送给客户端
 func (c *TcpConnection) StartWriter() {
-
 	g.Log().Line(false).Info("[写协程正在运行]")
+
 	defer g.Log().Line(false).Info(c.RemoteAddr().String(), "[写连接退出！]")
 
 	for {
@@ -69,7 +69,7 @@ func (c *TcpConnection) StartWriter() {
 				g.Log().Line(false).Error("发送数据错误，", err, "写连接退出！")
 				return
 			}
-			g.Log().Line().Debug("发送数据成功！data = %+v\n", data)
+			g.Log().Line().Debug("发送数据成功！pkg：", data)
 
 		case data, ok := <-c.msgBuffChan:
 			if ok {
@@ -90,8 +90,9 @@ func (c *TcpConnection) StartWriter() {
 
 // StartReader 读消息协程，用于从客户端中读取数据
 func (c *TcpConnection) StartReader() {
-	fmt.Println("[读协程正在运行]")
-	defer fmt.Println(c.RemoteAddr().String(), "[读连接退出！]")
+	g.Log().Line(false).Info("[读协程正在运行]")
+
+	defer g.Log().Line(false).Info(c.RemoteAddr().String(), "[读连接退出！]")
 	defer c.Stop()
 
 	for {
@@ -99,13 +100,12 @@ func (c *TcpConnection) StartReader() {
 		case <-c.ctx.Done():
 			return
 		default:
-
 			// 创建拆包的对象
 			dp := NewAcceptPackage()
 			// 数据包拆包
 			unpack, err := dp.Unpack(c.GetTCPConnection())
 			if err != nil {
-				g.Log().Line().Error("数据包解包异常", err)
+				g.Log().Line().Error("数据包拆包异常", err)
 				return
 			}
 			// TODO 数据解码
@@ -125,6 +125,40 @@ func (c *TcpConnection) StartReader() {
 			}
 		}
 	}
+}
+
+// SendTcpPkg 发送tcp数据包
+//  @pkgBodyType 数据类型
+//  @pkg     数据内容（自定义结构体对象）
+func (c *TcpConnection) SendTcpPkg(pkgBodyType byte, pkg interface{}) error {
+	// 数据序列化
+	bytes, err := json.Marshal(pkg)
+	if err != nil {
+		g.Log().Line(false).Error("数据包序列化异常", err)
+		return err
+	}
+
+	c.RLock()
+	if c.isClosed == true {
+		c.RUnlock()
+		return errors.New("发送消息时连接关闭")
+	}
+	c.RUnlock()
+
+	// 构建数据包封包对象
+	dp := NewPackage(pkgBodyType, bytes)
+
+	// 数据封包
+	msg, err := dp.Pack()
+	if err != nil {
+		g.Log().Line(false).Error("数据包封包失败，异常信息：", err)
+		return err
+	}
+
+	//写回客户端
+	c.msgChan <- msg
+
+	return nil
 }
 
 // Start 启动连接，让当前连接开始工作
@@ -210,11 +244,4 @@ func (c *TcpConnection) RemoveProperty(key string) {
 	c.propertyLock.Lock()
 	defer c.propertyLock.Unlock()
 	delete(c.property, key)
-}
-
-// SendTcpData 发送tcp数据包
-//  @pkgBodyType 数据类型
-//  @pkg     数据内容（自定义结构体对象）
-func (c *TcpConnection) SendTcpPkg(pkgBodyType byte, pkg interface{}) error {
-	return nil
 }
