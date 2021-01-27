@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
-	"github.com/happylay-cloud/gf-extend/net/tcp/zutils"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/zutils"
 )
 
 // DataPack 封包拆包类实例，暂时不需要成员

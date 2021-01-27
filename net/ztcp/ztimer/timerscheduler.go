@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/happylay-cloud/gf-extend/net/tcp/zlog"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/zlog"
 )
 
 const (

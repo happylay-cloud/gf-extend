@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/ziface"
 )
 
 // ClientTest 模拟客户端

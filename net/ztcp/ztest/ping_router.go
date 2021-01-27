@@ -1,9 +1,9 @@
 package ztest
 
 import (
-	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
-	"github.com/happylay-cloud/gf-extend/net/tcp/zlog"
-	"github.com/happylay-cloud/gf-extend/net/tcp/znet"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/zlog"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/znet"
 )
 
 // PingRouter 自定义路由

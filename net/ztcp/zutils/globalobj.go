@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
-	"github.com/happylay-cloud/gf-extend/net/tcp/zlog"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/zlog"
 )
 
 // 存储一切有关框架的全局参数，供其他模块使用，用户也可以通过根据tcp.json来配置

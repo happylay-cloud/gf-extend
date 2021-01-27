@@ -3,9 +3,9 @@ package ztest
 import (
 	"testing"
 
-	"github.com/happylay-cloud/gf-extend/net/tcp/ziface"
-	"github.com/happylay-cloud/gf-extend/net/tcp/zlog"
-	"github.com/happylay-cloud/gf-extend/net/tcp/znet"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/ziface"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/zlog"
+	"github.com/happylay-cloud/gf-extend/net/ztcp/znet"
 )
 
 // 创建连接的时候执行
