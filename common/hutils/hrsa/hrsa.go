@@ -45,17 +45,20 @@ func GenRsaKey(bits ...int) (prvkey, pubkey []byte, err error) {
 
 // RsaEncryptBlock 公钥加密-分段
 func RsaEncryptBlock(src, publicKeyByte []byte) (bytesEncrypt []byte, err error) {
+	// 解密pem格式的公钥
 	block, _ := pem.Decode(publicKeyByte)
 	if block == nil {
 		return nil, errors.New("获取公钥失败")
 	}
+	// 解析公钥
 	publicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
-
 	if err != nil {
-		return
+		return nil, err
 	}
-	keySize, srcSize := publicKey.(*rsa.PublicKey).Size(), len(src)
+	// 类型断言
 	pub := publicKey.(*rsa.PublicKey)
+
+	keySize, srcSize := pub.Size(), len(src)
 
 	g.Log().Line(false).Debug("密钥长度：", keySize, "\t明文长度：\t", srcSize)
 
@@ -81,6 +84,7 @@ func RsaEncryptBlock(src, publicKeyByte []byte) (bytesEncrypt []byte, err error)
 
 // RsaDecryptBlock 私钥解密-分段
 func RsaDecryptBlock(src, privateKeyByte []byte) (bytesDecrypt []byte, err error) {
+	// 获取私钥
 	block, _ := pem.Decode(privateKeyByte)
 	if block == nil {
 		return nil, errors.New("获取私钥失败")
@@ -92,7 +96,6 @@ func RsaDecryptBlock(src, privateKeyByte []byte) (bytesDecrypt []byte, err error
 	}
 
 	keySize, srcSize := privateKey.Size(), len(src)
-
 	g.Log().Line(false).Debug("密钥长度：", keySize, "\t密文长度：\t", srcSize)
 
 	var offSet = 0
@@ -102,6 +105,7 @@ func RsaDecryptBlock(src, privateKeyByte []byte) (bytesDecrypt []byte, err error
 		if endIndex > srcSize {
 			endIndex = srcSize
 		}
+		// 解密一部分
 		bytesOnce, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, src[offSet:endIndex])
 		if err != nil {
 			return nil, err
@@ -110,5 +114,5 @@ func RsaDecryptBlock(src, privateKeyByte []byte) (bytesDecrypt []byte, err error
 		offSet = endIndex
 	}
 	bytesDecrypt = buffer.Bytes()
-	return
+	return bytesDecrypt, nil
 }
