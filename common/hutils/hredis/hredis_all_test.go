@@ -148,3 +148,57 @@ func TestHRedisSetnx(t *testing.T) {
 
 	g.Dump(result)
 }
+
+func TestHRedisHashSet(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	result, err := HashSet("hredis-hash", "key", "value")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(result)
+}
+
+func TestHRedisHashGet(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	result, err := HashGet("hredis-hash", "key")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(result)
+}
+
+func TestHRedisHashDel(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	result, err := HashDel("hredis-hash", "key")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(result)
+}
