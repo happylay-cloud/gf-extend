@@ -2,8 +2,10 @@ package hrsa
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -115,4 +117,48 @@ func RsaDecryptBlock(src, privateKeyByte []byte) (bytesDecrypt []byte, err error
 	}
 	bytesDecrypt = buffer.Bytes()
 	return bytesDecrypt, nil
+}
+
+// RsaSignWithSha256 私钥签名
+func RsaSignWithSha256(data []byte, privateKeyByte []byte) ([]byte, error) {
+	// 计算散列值
+	h := sha256.New()
+	_, err := h.Write(data)
+	if err != nil {
+		return nil, err
+	}
+	hashed := h.Sum(nil)
+	block, _ := pem.Decode(privateKeyByte)
+	if block == nil {
+		return nil, errors.New("获取私钥失败")
+	}
+	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed)
+	if err != nil {
+		return nil, err
+	}
+
+	return signature, nil
+}
+
+// RsaVerySignWithSha256 公钥验签
+func RsaVerySignWithSha256(data, signData, publicKeyByte []byte) (bool, error) {
+	block, _ := pem.Decode(publicKeyByte)
+	if block == nil {
+		panic(errors.New("获取公钥失败"))
+	}
+	pubKey, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return false, err
+	}
+	hashed := sha256.Sum256(data)
+	err = rsa.VerifyPKCS1v15(pubKey.(*rsa.PublicKey), crypto.SHA256, hashed[:], signData)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
