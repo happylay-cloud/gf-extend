@@ -40,6 +40,14 @@ func SetAndExpire(key interface{}, value interface{}, expire uint32) (*gvar.Var,
 	return g.Redis().DoVar("SETEX", key, expire, value)
 }
 
+// Setnx 只有在key不存在时设置key的值（常用于分布式锁）
+//  设置成功，返回1，设置失败，返回0。
+//  @key   键
+//  @value 值
+func Setnx(key interface{}, value interface{}) (*gvar.Var, error) {
+	return g.Redis().DoVar("SETNX", key, value)
+}
+
 // Get 获取string值
 //  @key   键
 func Get(key interface{}) (*gvar.Var, error) {

@@ -130,3 +130,21 @@ func TestHRedisKeyExp(t *testing.T) {
 
 	g.Dump(result)
 }
+
+func TestHRedisSetnx(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	result, err := Setnx("hredis-setnx", "exp")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(result)
+}
