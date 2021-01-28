@@ -7,7 +7,6 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/happylay-cloud/gf-extend/net/htcp/hiface"
 	"github.com/happylay-cloud/gf-extend/net/htcp/hutils"
-	"github.com/happylay-cloud/gf-extend/net/ztcp/zutils"
 )
 
 var gfPlusLogo = `                                        
@@ -38,10 +37,10 @@ func NewTcpServer() hiface.ITcpServer {
 	printLogo()
 
 	s := &TcpServer{
-		Name:       zutils.GlobalObject.Name,
+		Name:       hutils.GlobalHTcpObject.Name,
 		IPVersion:  "tcp4",
-		IP:         zutils.GlobalObject.Host,
-		Port:       zutils.GlobalObject.TcpPort,
+		IP:         hutils.GlobalHTcpObject.Host,
+		Port:       hutils.GlobalHTcpObject.TcpPort,
 		pkgHandler: NewPkgHandle(),
 		ConnMgr:    NewTcpConnManager(),
 	}
@@ -167,9 +166,9 @@ func printLogo() {
 	fmt.Println(fmt.Sprintf("%s 2、简化开发、提高效率而生                             %s", borderLine, borderLine))
 	fmt.Println(bottomLine)
 	fmt.Printf("[Gf-Plus] 版本：%s 最大连接：%d 可接受最大数据包：%d\n",
-		zutils.GlobalObject.Version,
-		zutils.GlobalObject.MaxConn,
-		zutils.GlobalObject.MaxPacketSize)
+		hutils.GlobalHTcpObject.Version,
+		hutils.GlobalHTcpObject.MaxConn,
+		hutils.GlobalHTcpObject.MaxPacketSize)
 }
 
 func init() {

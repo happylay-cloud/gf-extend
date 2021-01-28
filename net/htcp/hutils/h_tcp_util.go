@@ -15,6 +15,8 @@ type HTcpGlobalConfig struct {
 	TcpPort          int               // 当前服务器主机监听端口号
 	Name             string            // 当前服务器名称
 	Version          string            // 版本号
+	MaxPacketSize    int64             // 接收数据包的最大值
+	MaxPkgChanLen    int64             // 发送消息的缓冲最大长度
 	MaxConn          int               // 当前服务器主机允许的最大连接个数
 	WorkerPoolSize   int64             // 业务工作Worker池的数量
 	MaxWorkerTaskLen int64             // 业务工作Worker对应负责的任务队列最大任务存储数量
@@ -52,6 +54,7 @@ func (global *HTcpGlobalConfig) Reload() {
 	if err != nil {
 		panic(err)
 	}
+
 }
 
 // 初始化全局变量
@@ -68,10 +71,11 @@ func init() {
 		TcpPort:          2021,
 		MaxConn:          12000,
 		WorkerPoolSize:   10,
+		MaxPacketSize:    4096,
 		MaxWorkerTaskLen: 1024,
-		ConfFilePath:     pwd + "/conf/tcp.json",
+		MaxPkgChanLen:    1024,
+		ConfFilePath:     pwd + "/config/tcp.json",
 	}
-
 	// 从配置文件中加载一些用户配置的参数
 	GlobalHTcpObject.Reload()
 }

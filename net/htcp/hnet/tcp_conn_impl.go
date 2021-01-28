@@ -28,6 +28,7 @@ type TcpConnection struct {
 	msgChan chan []byte
 	// 有缓冲管道，用于读、写两个goroutine之间的消息通信
 	msgBuffChan chan []byte
+
 	sync.RWMutex
 	// 连接属性
 	property map[string]interface{}
@@ -41,13 +42,14 @@ type TcpConnection struct {
 func NewTcpConnection(server hiface.ITcpServer, conn *net.TCPConn, connID int64, pkgHandler hiface.ITcpPkgHandle) *TcpConnection {
 	// 初始化Conn属性
 	c := &TcpConnection{
-		TcpServer:  server,
-		Conn:       conn,
-		ConnID:     connID,
-		isClosed:   false,
-		PkgHandler: pkgHandler,
-		msgChan:    make(chan []byte),
-		property:   make(map[string]interface{}),
+		TcpServer:   server,
+		Conn:        conn,
+		ConnID:      connID,
+		isClosed:    false,
+		PkgHandler:  pkgHandler,
+		msgChan:     make(chan []byte),
+		msgBuffChan: make(chan []byte, hutils.GlobalHTcpObject.MaxPkgChanLen),
+		property:    make(map[string]interface{}),
 	}
 
 	// 将新创建的Conn添加到连接管理中
@@ -69,7 +71,7 @@ func (c *TcpConnection) StartWriter() {
 				g.Log().Line(false).Error("发送数据错误，", err, "写连接退出！")
 				return
 			}
-			g.Log().Line().Debug("发送数据成功！pkg：", data)
+			g.Log().Line().Debug("发送非缓冲数据成功！")
 
 		case data, ok := <-c.msgBuffChan:
 			if ok {
@@ -78,6 +80,7 @@ func (c *TcpConnection) StartWriter() {
 					g.Log().Line(false).Error("发送缓冲数据错误：", err, " 写连接退出！")
 					return
 				}
+				g.Log().Line().Debug("发送缓冲数据成功！")
 			} else {
 				g.Log().Line(false).Info("消息缓冲通道被关闭")
 				break
@@ -129,8 +132,9 @@ func (c *TcpConnection) StartReader() {
 
 // SendTcpPkg 发送tcp数据包
 //  @pkgBodyType 数据类型
-//  @pkg     数据内容（自定义结构体对象）
-func (c *TcpConnection) SendTcpPkg(pkgBodyType byte, pkg interface{}) error {
+//  @pkg         数据内容（自定义结构体对象）
+//  @userBuf     是否启动缓冲（默认关闭）
+func (c *TcpConnection) SendTcpPkg(pkgBodyType byte, pkg interface{}, userBuf ...bool) error {
 	// 数据序列化
 	bytes, err := json.Marshal(pkg)
 	if err != nil {
@@ -155,9 +159,14 @@ func (c *TcpConnection) SendTcpPkg(pkgBodyType byte, pkg interface{}) error {
 		return err
 	}
 
-	//写回客户端
-	c.msgChan <- msg
+	if len(userBuf) > 0 && userBuf[0] {
+		// 写回带缓冲客户端
+		c.msgBuffChan <- msg
+		return nil
+	}
 
+	// 写回非缓冲客户端
+	c.msgChan <- msg
 	return nil
 }
 

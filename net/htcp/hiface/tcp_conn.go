@@ -19,8 +19,9 @@ type ITcpConnection interface {
 	GetProperty(key string) (interface{}, error)
 	// 移除连接属性
 	RemoveProperty(key string)
-	// pkgBodyType 发送tcp数据包
+	// SendTcpPkg 发送tcp数据包
 	//  @pkgBodyType 数据类型
-	//  @pkg     数据内容（自定义结构体对象）
-	SendTcpPkg(pkgBodyType byte, pkg interface{}) error
+	//  @pkg         数据内容（自定义结构体对象）
+	//  @userBuf     是否启动缓冲（默认关闭）
+	SendTcpPkg(pkgBodyType byte, pkg interface{}, userBuf ...bool) error
 }
