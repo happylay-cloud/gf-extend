@@ -59,3 +59,56 @@ func TestHRedisRemove(t *testing.T) {
 	}
 
 }
+
+func TestHRedisString(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	_, err := Set("hredis-string", "k", 100)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
+
+func TestHRedisBatchAll(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	list, err := BatchValues("hredis-*")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(list)
+}
+
+func TestHRedisValueDel(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	result, err := DeleteKeyValue("hredis-string")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(result)
+}
