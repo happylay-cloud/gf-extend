@@ -8,10 +8,12 @@ import (
 	"github.com/gogf/gf/util/gconv"
 )
 
+// https://www.redis.net.cn
+
 // Set 新增string类型
 //  @key   键
 //  @value 值
-//  @expire 过期时间，单位秒（默认不设置）
+//  @expire 过期时间，单位秒（默认不设置，不推荐使用，建议使用SetAndExpire方法）
 func Set(key interface{}, value interface{}, expire ...uint32) (*gvar.Var, error) {
 
 	// 设置键值
@@ -27,6 +29,15 @@ func Set(key interface{}, value interface{}, expire ...uint32) (*gvar.Var, error
 		}
 	}
 	return doVar, err
+}
+
+// SetAndExpire 设置key-value并设置过期时间，限定为字符串
+//  @key     键
+//  @value   值
+//  @expire 过期时间，单位秒
+func SetAndExpire(key interface{}, value interface{}, expire uint32) (*gvar.Var, error) {
+	// 设置键值
+	return g.Redis().DoVar("SETEX", key, expire, value)
 }
 
 // Get 获取string值

@@ -112,3 +112,21 @@ func TestHRedisValueDel(t *testing.T) {
 
 	g.Dump(result)
 }
+
+func TestHRedisKeyExp(t *testing.T) {
+
+	config := gredis.Config{
+		Host: "127.0.0.1",
+		Port: 6379,
+		Db:   1,
+	}
+
+	gredis.SetConfig(config)
+
+	result, err := SetAndExpire("hredis-exp", "exp", 100)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.Dump(result)
+}
