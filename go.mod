@@ -7,6 +7,7 @@ require (
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gogf/gf v1.15.1
+	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.2
 	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.6

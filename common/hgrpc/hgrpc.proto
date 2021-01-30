@@ -8,7 +8,7 @@ package admin;
 option go_package          = "test/admin";
 
 // 开启Java多文件
-option java_multiple_files = true;
+option java_multiple_files = false;
 
 // 生成的Java文件的package路径
 option java_package        = "test.admin";
@@ -56,6 +56,9 @@ message LoginResp {
   int32 code = 1;
   string msg = 2;
 }
+
+// 编译
+// protoc --go_out=./ --java_out=./ *.proto
 
 // 编译为go代码
 // protoc --go_out=plugins=grpc,paths=source_relative:. --validate_out="lang=go,paths=source_relative:." hgrpc.proto
