@@ -1,0 +1,39 @@
+syntax="proto3";
+
+// 生成的pb文件中package为admin
+package admin;
+
+// 生成go文件的路径
+option go_package          = "test/admin";
+
+// 开启Java多文件
+option java_multiple_files = true;
+
+// 生成的Java文件的package路径
+option java_package        = "test.admin";
+
+service UserService {
+  rpc Login(LoginReq) returns (LoginResp);
+}
+
+message LoginReq {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResp {
+  int32 code = 1;
+  string msg = 2;
+}
+
+// 编译为go代码
+// protoc --go_out=plugins=grpc,paths=source_relative:. --validate_out="lang=go,paths=source_relative:." hgrpc.proto
+
+// 编译为java代码
+// protoc ./hgrpc.proto --java_out=./
+
+// 生成proto文档（markdown）
+// protoc --doc_opt=markdown,protocol.md --doc_out=./ ./*.proto
+
+// 生成proto文档（html）
+// protoc --doc_opt=html,index.html --doc_out=./ ./*.proto
