@@ -1,6 +1,7 @@
+// 指定版本信息
 syntax="proto3";
 
-// 生成的pb文件中package为admin
+// 生成go文件的包名
 package admin;
 
 // 生成go文件的路径
@@ -11,6 +12,36 @@ option java_multiple_files = true;
 
 // 生成的Java文件的package路径
 option java_package        = "test.admin";
+
+// message为关键字，作用为定义一种消息类型
+message Person {
+  string	name = 1;					        // 姓名
+  int32	age = 2;					          // 年龄
+  repeated string emails = 3; 		  // 电子邮件（repeated表示字段允许重复）
+  repeated PhoneNumber phones = 4;	// 手机号
+}
+
+// message为关键字，作用为定义一种消息类型可以被另外的消息类型嵌套使用
+message PhoneNumber {
+  string number = 1;
+  PhoneType type = 2;
+}
+
+// enum为关键字，作用为定义一种枚举类型
+enum PhoneType {
+  MOBILE = 0;
+  HOME = 1;
+  WORK = 2;
+}
+
+// 消息格式
+// 字段修饰符 + 数据类型 + 字段名称 + 唯一的编号标签值
+// 字段名称：蛇形或者驼峰
+// 唯一的编号标签：代表每个字段的一个唯一的编号标签，在同一个消息里不可以重复。
+//  这些编号标签用与在消息二进制格式中标识你的字段，并且消息一旦定义就不能更改。
+//  需要说明的是标签在1到15范围的采用一个字节进行编码，
+//  所以通常将标签1到15用于频繁发生的消息字段。编号标签大小的范围是1到229
+// 注释格式：向.proto文件添加注释，可以使用C/C++/Java/Go风格的双斜杠（//）语法格式
 
 service UserService {
   rpc Login(LoginReq) returns (LoginResp);
