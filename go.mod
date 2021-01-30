@@ -13,4 +13,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/shopspring/decimal v1.2.0
 	go.uber.org/dig v1.10.0
+	google.golang.org/protobuf v1.23.0
 )

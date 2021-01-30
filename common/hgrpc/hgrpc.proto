@@ -5,13 +5,13 @@ syntax="proto3";
 package admin;
 
 // 生成go文件的路径
-option go_package          = "test/admin";
+option go_package          = "test/pb";
 
 // 开启Java多文件
 option java_multiple_files = false;
 
 // 生成的Java文件的package路径
-option java_package        = "test.admin";
+option java_package        = "test.pb";
 
 // message为关键字，作用为定义一种消息类型
 message Person {
