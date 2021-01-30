@@ -2,7 +2,7 @@
 syntax="proto3";
 
 // 生成go文件的包名
-package admin;
+package pb;
 
 // 生成go文件的路径
 option go_package          = "test/pb";
@@ -63,6 +63,9 @@ message LoginResp {
 // 编译为go代码
 // protoc --go_out=plugins=grpc,paths=source_relative:. --validate_out="lang=go,paths=source_relative:." hgrpc.proto
 
+// 编译为grpc对应go代码
+// protoc --go_out=plugins=grpc:. *.proto
+
 // 编译为java代码
 // protoc ./hgrpc.proto --java_out=./
 
@@ -71,3 +74,5 @@ message LoginResp {
 
 // 生成proto文档（html）
 // protoc --doc_opt=html,index.html --doc_out=./ ./*.proto
+
+
