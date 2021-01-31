@@ -30,31 +30,35 @@ func TestServer(t *testing.T) {
 	}
 }
 
-type OrderServiceImpl struct {
-}
-
 // TestClient 客户端
 func TestClient(t *testing.T) {
 
 	// 建立RPC通道
-	conn, err := grpc.Dial("localhost:8090", grpc.WithInsecure())
+	client, err := grpc.Dial("localhost:8090", grpc.WithInsecure())
 	if err != nil {
 		panic(err.Error())
 	}
-	defer conn.Close()
 
-	orderServiceClient := message.NewOrderServiceClient(conn)
+	// 创建上下文
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(10)*time.Second)
+	defer cancel()
+
 	// 封装请求参数
 	orderRequest := &message.OrderRequest{OrderId: "201907300001", TimeStamp: time.Now().Unix()}
 
-	orderInfo, _ := orderServiceClient.GetOrderInfo(context.Background(), orderRequest)
+	// 创建rpc对象
+	orderServiceClient := message.NewOrderServiceClient(client)
+
+	// 调用服务
+	orderInfo, _ := orderServiceClient.GetOrderInfo(ctx, orderRequest)
 	if orderInfo != nil {
 		fmt.Println(orderInfo.GetOrderId())
 		fmt.Println(orderInfo.GetOrderName())
 		fmt.Println(orderInfo.GetOrderStatus())
 	}
 
-	orderInfosClient, err := orderServiceClient.GetOrderInfos(context.TODO(), orderRequest)
+	// 调用服务
+	orderInfosClient, _ := orderServiceClient.GetOrderInfos(context.TODO(), orderRequest)
 	for {
 		orderInfo, err := orderInfosClient.Recv()
 		if err == io.EOF {
@@ -67,6 +71,8 @@ func TestClient(t *testing.T) {
 		fmt.Println("读取到的信息：", orderInfo)
 	}
 }
+
+type OrderServiceImpl struct{}
 
 // 具体的方法实现
 func (os *OrderServiceImpl) GetOrderInfo(ctx context.Context, request *message.OrderRequest) (*message.OrderInfo, error) {
