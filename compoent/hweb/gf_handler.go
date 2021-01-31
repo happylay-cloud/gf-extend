@@ -1,4 +1,4 @@
-package gfmiddleware
+package hweb
 
 import (
 	"github.com/gogf/gf/frame/g"
@@ -10,7 +10,7 @@ import (
 //  示例：
 //  s := g.Server()
 //  s.Plugin(&swagger.Swagger{})
-//  s.Use(gfmiddleware.MiddlewareErrorHandler)
+//  s.Use(hweb.MiddlewareErrorHandler)
 func MiddlewareErrorHandler(r *ghttp.Request) {
 	r.Middleware.Next()
 	if err := r.GetError(); err != nil {
