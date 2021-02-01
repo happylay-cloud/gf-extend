@@ -279,3 +279,8 @@ func TestIdBeanSafeMap(t *testing.T) {
 	wg.Wait()
 	g.Dump(ids)
 }
+
+func TestIdBeanTime(t *testing.T) {
+	id, _ := IdBean.NextID()
+	fmt.Println(GetIdGenTime(id))
+}
