@@ -49,6 +49,7 @@ func TestIdBean(t *testing.T) {
 	ids := gmap.New(true)
 
 	go func() {
+		// 等待组计数器减一
 		defer wg.Done()
 		for i := 0; i < 10000; i++ {
 			id, err := IdBean.NextID()
@@ -97,7 +98,7 @@ func TestIdBean(t *testing.T) {
 		}
 
 	}()
-
+	// 让主协程处于等待状态
 	wg.Wait()
 	g.Dump(ids)
 }
@@ -140,4 +141,141 @@ func (d *SafeMap) SetKV(k uint64, v string) {
 	d.LockRw.Lock()
 	defer d.LockRw.Unlock()
 	d.Data[k] = v
+}
+
+func TestIdBeanSafeMap(t *testing.T) {
+	// 设置同步等待组
+	wg := new(sync.WaitGroup)
+	wg.Add(5)
+
+	ids := SafeMap{
+		Data:   map[uint64]string{},
+		Lock:   new(sync.Mutex),
+		LockRw: new(sync.RWMutex),
+	}
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 30000; i++ {
+			id, err := IdBean.NextID()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			fmt.Println("唯一id1：", id)
+			decompose := Decompose(id)
+			g.Dump(decompose)
+
+			format := time.Unix(int64(decompose["time"]*10/1000), 0).Format("2006-01-02 15:04:05")
+			fmt.Println("生成时间1：", format)
+
+			if _, ok := ids.Get(id); ok {
+				g.Log().Line(false).Error("id重复xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+			}
+			ids.Set(id, "唯一id1："+format)
+
+			fmt.Println("唯一id1：", id)
+
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 30000; i++ {
+			id, err := IdBean.NextID()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			fmt.Println("唯一id2：", id)
+			decompose := Decompose(id)
+			g.Dump(decompose)
+
+			format := time.Unix(int64(decompose["time"]*10/1000), 0).Format("2006-01-02 15:04:05")
+			fmt.Println("生成时间2：", format)
+
+			if _, ok := ids.Get(id); ok {
+				g.Log().Line(false).Error("id重复xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+			}
+			ids.Set(id, "唯一id2："+format)
+
+			fmt.Println("唯一id2：", id)
+
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 30000; i++ {
+			id, err := IdBean.NextID()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			fmt.Println("唯一id3：", id)
+			decompose := Decompose(id)
+			g.Dump(decompose)
+
+			format := time.Unix(int64(decompose["time"]*10/1000), 0).Format("2006-01-02 15:04:05")
+			fmt.Println("生成时间3：", format)
+
+			if _, ok := ids.Get(id); ok {
+				g.Log().Line(false).Error("id重复xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+			}
+			ids.Set(id, "唯一id3："+format)
+
+			fmt.Println("唯一id3：", id)
+
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 30000; i++ {
+			id, err := IdBean.NextID()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			fmt.Println("唯一id4：", id)
+			decompose := Decompose(id)
+			g.Dump(decompose)
+
+			format := time.Unix(int64(decompose["time"]*10/1000), 0).Format("2006-01-02 15:04:05")
+			fmt.Println("生成时间4：", format)
+
+			if _, ok := ids.Get(id); ok {
+				g.Log().Line(false).Error("id重复xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+			}
+			ids.Set(id, "唯一id4："+format)
+
+			fmt.Println("唯一id4：", id)
+
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 30000; i++ {
+			id, err := IdBean.NextID()
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			decompose := Decompose(id)
+			g.Dump(decompose)
+
+			format := time.Unix(int64(decompose["time"]*10/1000), 0).Format("2006-01-02 15:04:05")
+			fmt.Println("生成时间5：", format)
+
+			if _, ok := ids.Get(id); ok {
+				g.Log().Line(false).Error("id重复xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+			}
+			ids.Set(id, "唯一id5："+format)
+
+			fmt.Println("唯一id5：", id)
+
+		}
+
+	}()
+
+	wg.Wait()
+	g.Dump(ids)
 }
