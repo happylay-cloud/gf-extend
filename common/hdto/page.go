@@ -1,4 +1,4 @@
-package gfdto
+package hdto
 
 import (
 	"math"
@@ -28,24 +28,11 @@ func PageData(pageNum, pageSize, totalCount int, list interface{}) *Page {
 // NewPage 获取分页对象
 //	@pageNum			当前页码
 //	@pageSize			每页记录数
-//	@handlerErrData 	是否处理异常数据，可选参数，bool类型，false 不处理，true 处理。默认处理。
-func NewPage(pageNum, pageSize int, handlerErrData ...interface{}) *Page {
+//	@handlerErrData 	是否处理异常数据，可选参数，bool类型，false 不处理，true 处理。默认true处理。
+func NewPage(pageNum, pageSize int, handlerErrData ...bool) *Page {
 
-	if len(handlerErrData) > 0 {
-		// 处理异常数据
-		if flag, ok := handlerErrData[0].(bool); ok {
-			if flag {
-				// 异常数据处理
-				if pageNum <= 0 {
-					pageNum = 1
-				}
-
-				if pageSize <= 0 {
-					pageSize = 10
-				}
-			}
-		}
-	} else {
+	// 默认处理异常数据
+	if len(handlerErrData) == 0 || (len(handlerErrData) > 0 && handlerErrData[0]) {
 		// 异常数据处理
 		if pageNum <= 0 {
 			pageNum = 1

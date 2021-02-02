@@ -1,4 +1,4 @@
-package gfdto
+package hdto
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 func TestPage(t *testing.T) {
 
-	//newPage := NewPage(-4, -3, true)
+	// newPage := NewPage(-4, -3, false)
 
 	newPage := NewPage(2, 10)
 

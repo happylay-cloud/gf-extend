@@ -3,7 +3,7 @@ package hredis
 import (
 	"github.com/gogf/gf/container/gvar"
 	"github.com/gogf/gf/frame/g"
-	"github.com/happylay-cloud/gf-extend/common/gfdto"
+	"github.com/happylay-cloud/gf-extend/common/hdto"
 )
 
 // ZSetAdd 新增ZSet数据
@@ -25,10 +25,10 @@ func ZSetCountAll(key interface{}) (*gvar.Var, error) {
 //  @pageNum  当前页码
 //  @pageSize 每页记录数
 //  返回分页对象，注意list集合是*gvar.Var类型
-func ZSetPage(key interface{}, pageNum, pageSize int, needPageCount ...bool) (*gfdto.Page, error) {
+func ZSetPage(key interface{}, pageNum, pageSize int, needPageCount ...bool) (*hdto.Page, error) {
 
 	// 创建分页对象
-	page := gfdto.NewPage(pageNum, pageSize)
+	page := hdto.NewPage(pageNum, pageSize)
 	start, stop := page.RedisPage()
 
 	// 获取分页数据
