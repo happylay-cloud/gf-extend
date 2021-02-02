@@ -5,8 +5,7 @@ import (
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-
-	"github.com/happylay-cloud/gf-extend/common/gfres"
+	"github.com/happylay-cloud/gf-extend/common/hres"
 )
 
 func TestGf(t *testing.T) {
@@ -21,5 +20,5 @@ func TestGf(t *testing.T) {
 }
 
 func hi(r *ghttp.Request) {
-	gfres.Ok(r)
+	hres.Ok(r)
 }

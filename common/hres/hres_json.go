@@ -1,4 +1,4 @@
-package gfres
+package hres
 
 import (
 	"github.com/gogf/gf/frame/g"
@@ -13,7 +13,7 @@ const (
 	BUSINESS_ERROR = 501 // 通用业务异常
 )
 
-// 数据返回通用json数据结构
+// JsonResponse 数据返回通用json数据结构
 type JsonResponse struct {
 	Code      int         `json:"code"`      // 状态码（200：操作成功，201：操作失败，500：服务器内部错误，501：通用业务异常）
 	Message   string      `json:"message"`   // 提示信息
@@ -21,7 +21,7 @@ type JsonResponse struct {
 	Exception interface{} `json:"exception"` // 异常信息
 }
 
-// 内部调用
+// result 内部调用
 func result(r *ghttp.Request, code int, message string, data interface{}, exception interface{}) {
 	if err := r.Response.WriteJson(JsonResponse{
 		code,
@@ -35,52 +35,52 @@ func result(r *ghttp.Request, code int, message string, data interface{}, except
 	r.Exit()
 }
 
-// 操作成功
+// Ok 操作成功
 func Ok(r *ghttp.Request) {
 	result(r, SUCCESS, "操作成功", map[string]interface{}{}, nil)
 }
 
-// 操作成功（自定义消息）
+// OkWithMsg 操作成功（自定义消息）
 func OkWithMsg(r *ghttp.Request, message string) {
 	result(r, SUCCESS, message, map[string]interface{}{}, nil)
 }
 
-// 操作成功（自定义数据）
+// OkWithData 操作成功（自定义数据）
 func OkWithData(r *ghttp.Request, data interface{}) {
 	result(r, SUCCESS, "操作成功", data, nil)
 }
 
-// 操作成功（自定义消息和数据）
+// OkWithDataAndMsg 操作成功（自定义消息和数据）
 func OkWithDataAndMsg(r *ghttp.Request, message string, data interface{}) {
 	result(r, SUCCESS, message, data, nil)
 }
 
-// 操作失败
+// Fail 操作失败
 func Fail(r *ghttp.Request) {
 	result(r, FAIL, "操作失败", map[string]interface{}{}, nil)
 }
 
-// 操作失败（自定义消息）
+// FailWithMsg 操作失败（自定义消息）
 func FailWithMsg(r *ghttp.Request, message string) {
 	result(r, FAIL, message, map[string]interface{}{}, nil)
 }
 
-// 操作失败（自定义异常信息）
+// FailWithEx 操作失败（自定义异常信息）
 func FailWithEx(r *ghttp.Request, exception interface{}) {
 	result(r, FAIL, "操作失败", nil, exception)
 }
 
-// 操作失败（自定义错误码和消息）
+// FailWithCodeAndMsg 操作失败（自定义错误码和消息）
 func FailWithCodeAndMsg(r *ghttp.Request, code int, message string) {
 	result(r, code, message, nil, nil)
 }
 
-// 操作失败（自定义错误码、消息、异常信息）
+// FailWithCodeMsgAndEx 操作失败（自定义错误码、消息、异常信息）
 func FailWithCodeMsgAndEx(r *ghttp.Request, code int, message string, exception interface{}) {
 	result(r, code, message, nil, exception)
 }
 
-// 标准返回结果数据结构封装
+// Json 标准返回结果数据结构封装
 func Json(r *ghttp.Request, code int, message string, data ...interface{}) {
 	responseData := interface{}(nil)
 	if len(data) > 0 {
@@ -97,7 +97,7 @@ func Json(r *ghttp.Request, code int, message string, data ...interface{}) {
 	}
 }
 
-// 返回json数据并退出当前http执行函数
+// JsonExit 返回json数据并退出当前http执行函数
 func JsonExit(r *ghttp.Request, err int, msg string, data ...interface{}) {
 	Json(r, err, msg, data...)
 	r.Exit()
