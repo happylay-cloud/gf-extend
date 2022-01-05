@@ -6,7 +6,7 @@ import (
 	"github.com/gogf/gf/util/gconv"
 )
 
-// 通用分页JSON数据结构
+// Page 通用分页JSON数据结构
 type Page struct {
 	PageNum    int         `json:"pageNum"`    // 当前页码
 	PageSize   int         `json:"pageSize"`   // 每页记录数

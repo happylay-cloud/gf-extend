@@ -9,7 +9,7 @@ import (
 	"github.com/happylay-cloud/gf-extend/net/ztcp/zlog"
 )
 
-// 存储一切有关框架的全局参数，供其他模块使用，用户也可以通过根据tcp.json来配置
+// GlobalObj 存储一切有关框架的全局参数，供其他模块使用，用户也可以通过根据tcp.json来配置
 type GlobalObj struct {
 
 	// 服务器配置
@@ -35,10 +35,10 @@ type GlobalObj struct {
 	LogDebugClose bool   // 是否关闭Debug日志级别调试信息 默认false，默认打开debug信息
 }
 
-// 定义一个全局的对象
+// GlobalObject 定义一个全局的对象
 var GlobalObject *GlobalObj
 
-// 判断一个文件是否存在
+// PathExists 判断一个文件是否存在
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -50,7 +50,7 @@ func PathExists(path string) (bool, error) {
 	return false, err
 }
 
-// 读取用户的配置文件
+// Reload 读取用户的配置文件
 func (global *GlobalObj) Reload() {
 
 	if confFileExists, _ := PathExists(global.ConfFilePath); confFileExists != true {

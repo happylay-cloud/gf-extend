@@ -22,10 +22,10 @@ type CasbinRule struct {
 
 // Adapter 表示策略存储的gdb适配器。
 type Adapter struct {
-	driverName     string
-	dataSourceName string
-	tableName      string
-	db             gdb.DB
+	driverName string
+	dbLink     string
+	tableName  string
+	db         gdb.DB
 }
 
 // finalizer 是适配器的析构函数。
@@ -36,10 +36,10 @@ func finalizer(a *Adapter) {
 }
 
 // NewAdapter 是适配器的构造函数。
-func NewAdapter(driverName string, dataSourceName string) (*Adapter, error) {
+func NewAdapter(driverName string, dbLink string) (*Adapter, error) {
 	a := &Adapter{}
 	a.driverName = driverName
-	a.dataSourceName = dataSourceName
+	a.dbLink = dbLink
 	a.tableName = "casbin_rule"
 
 	// 打开数据库，如果不存在就创建它。
@@ -79,10 +79,10 @@ func (a *Adapter) open() error {
 	gdb.SetConfig(gdb.Config{
 		"casbin": gdb.ConfigGroup{
 			gdb.ConfigNode{
-				Type:     a.driverName,
-				LinkInfo: a.dataSourceName,
-				Role:     "master",
-				Weight:   100,
+				Type:   a.driverName,
+				Link:   a.dbLink,
+				Role:   "master",
+				Weight: 100,
 			},
 		},
 	})

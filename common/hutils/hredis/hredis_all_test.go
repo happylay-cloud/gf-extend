@@ -16,7 +16,7 @@ func TestHRedis(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	_, err := ZSetAdd("hredis-zset", "k2", 123)
 	if err != nil {
@@ -33,7 +33,7 @@ func TestHRedisPage(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	page, err := ZSetPage("hredis-zset", 2, 2, true)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestHRedisRemove(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	_, err := ZSetRemove("hredis-zset", "k1")
 	if err != nil {
@@ -68,7 +68,7 @@ func TestHRedisString(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	_, err := Set("hredis-string", "k", 100)
 	if err != nil {
@@ -85,7 +85,7 @@ func TestHRedisBatchAll(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	list, err := BatchValues("hredis-*")
 	if err != nil {
@@ -103,7 +103,7 @@ func TestHRedisValueDel(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	result, err := DeleteKeyValue("hredis-string")
 	if err != nil {
@@ -121,7 +121,7 @@ func TestHRedisKeyExp(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	result, err := SetAndExpire("hredis-exp", "exp", 100)
 	if err != nil {
@@ -139,7 +139,7 @@ func TestHRedisSetnx(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	result, err := Setnx("hredis-setnx", "exp")
 	if err != nil {
@@ -157,7 +157,7 @@ func TestHRedisHashSet(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	result, err := HashSet("hredis-hash", "key", "value")
 	if err != nil {
@@ -175,7 +175,7 @@ func TestHRedisHashGet(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	result, err := HashGet("hredis-hash", "key")
 	if err != nil {
@@ -193,7 +193,7 @@ func TestHRedisHashDel(t *testing.T) {
 		Db:   1,
 	}
 
-	gredis.SetConfig(config)
+	gredis.SetConfig(&config)
 
 	result, err := HashDel("hredis-hash", "key")
 	if err != nil {

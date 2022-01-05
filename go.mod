@@ -3,16 +3,17 @@ module github.com/happylay-cloud/gf-extend
 go 1.14
 
 require (
-	github.com/casbin/casbin/v2 v2.20.1
+	github.com/casbin/casbin/v2 v2.40.6
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/go-sql-driver/mysql v1.5.0
-	github.com/gogf/gf v1.15.1
-	github.com/golang/protobuf v1.4.3
-	github.com/google/uuid v1.1.2
-	github.com/lib/pq v1.9.0
+	github.com/go-sql-driver/mysql v1.6.0
+	github.com/gogf/gf v1.16.6
+	github.com/golang/protobuf v1.5.2
+	github.com/gomodule/redigo v1.8.8 // indirect
+	github.com/google/uuid v1.3.0
+	github.com/lib/pq v1.10.4
 	github.com/mattn/go-sqlite3 v1.14.6
-	github.com/shopspring/decimal v1.2.0
-	go.uber.org/dig v1.10.0
-	google.golang.org/grpc v1.35.0
-	google.golang.org/protobuf v1.25.0
+	github.com/shopspring/decimal v1.3.1
+	go.uber.org/dig v1.13.0
+	google.golang.org/grpc v1.43.0
+	google.golang.org/protobuf v1.27.1
 )
