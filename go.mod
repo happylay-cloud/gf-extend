@@ -16,4 +16,5 @@ require (
 	go.uber.org/dig v1.13.0
 	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
+	github.com/PuerkitoBio/goquery v1.8.0
 )
