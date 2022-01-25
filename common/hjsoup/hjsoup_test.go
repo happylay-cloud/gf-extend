@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 	"io/ioutil"
+	"net/url"
 	"strconv"
 	"testing"
 	"time"
@@ -63,6 +64,30 @@ func TestHttpClient(t *testing.T) {
 		return
 	}
 
+	// 此处传参是正确的
+	formData1 := map[string]string{
+		"productCode":  "6956401264074",
+		"batchNo":      "",
+		"productCode1": "",
+		"traceCode":    "",
+		"doorCode":     doorCode,
+		"validX":       validX,
+	}
+
+	fmt.Println(formData1)
+
+	// 警告：不能按照这种方式传参->使用FormPost方法，此处cookie会丢失
+	formData2 := url.Values{
+		"productCode":  {"6956401264074"},
+		"batchNo":      {""},
+		"productCode1": {""},
+		"traceCode":    {""},
+		"doorCode":     {doorCode},
+		"validX":       {validX},
+	}
+
+	fmt.Println(formData2.Encode())
+
 	formResp, err := g.Client().Timeout(20*time.Second).
 		SetCookieMap(map[string]string{
 			"JSESSIONID": sessionId,
@@ -72,14 +97,7 @@ func TestHttpClient(t *testing.T) {
 			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
 		}).
 		ContentType("application/x-www-form-urlencoded").
-		Post("http://www.chinatrace.org/trace/door/controller/SearchController/searchByProductCode.do", map[string]string{
-			"productCode":  "6956401264074",
-			"batchNo":      "",
-			"productCode1": "",
-			"traceCode":    "",
-			"doorCode":     doorCode,
-			"validX":       validX,
-		})
+		Post("http://www.chinatrace.org/trace/door/controller/SearchController/searchByProductCode.do", formData1)
 
 	if err != nil {
 		return
@@ -90,8 +108,8 @@ func TestHttpClient(t *testing.T) {
 		return
 	}
 
-	formResp.RawDump()
-
 	fmt.Println(string(body))
+
+	fmt.Println(formResp.Request.Cookies())
 
 }
