@@ -6,4 +6,6 @@ go.sum
 
 .log
 
+.cache
+
 bin
