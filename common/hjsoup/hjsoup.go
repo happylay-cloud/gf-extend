@@ -176,31 +176,31 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 				switch t1 {
 				case 1:
 					// 设置产品名称
-					productCodeDto.ProductName = selection2.Text()
+					productCodeDto.ProductName = TrimBlank(selection2.Text())
 				case 2:
 					// 设置产品分类
-					productCodeDto.ProductCategory = selection2.Text()
+					productCodeDto.ProductCategory = TrimBlank(selection2.Text())
 				case 3:
 					// 设置品牌
-					productCodeDto.Brand = selection2.Text()
+					productCodeDto.Brand = TrimBlank(selection2.Text())
 				case 4:
 					// 设置商品规格
-					productCodeDto.ProductSpec = selection2.Text()
+					productCodeDto.ProductSpec = TrimBlank(selection2.Text())
 				case 5:
 					// 设置标准号
-					productCodeDto.StandardNo = selection2.Text()
+					productCodeDto.StandardNo = TrimBlank(selection2.Text())
 				case 6:
 					// 设置标准名称
-					productCodeDto.StandardName = selection2.Text()
+					productCodeDto.StandardName = TrimBlank(selection2.Text())
 				case 7:
 					// 设置保质期
-					productCodeDto.ProductExp = selection2.Text()
+					productCodeDto.ProductExp = TrimBlank(selection2.Text())
 				case 8:
 					// 设置上市日期
-					productCodeDto.UpMarketTime = selection2.Text()
+					productCodeDto.UpMarketTime = TrimBlank(selection2.Text())
 				case 9:
 					// 设置下市日期
-					productCodeDto.DownMarketTime = selection2.Text()
+					productCodeDto.DownMarketTime = TrimBlank(selection2.Text())
 				}
 			}
 
@@ -225,4 +225,14 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	productCodeDto.ProductImageList = imgList
 
 	return &productCodeDto, nil
+}
+
+// TrimBlank 删除字符串首尾空白
+func TrimBlank(str string) string {
+	// 去除制表符
+	trimStr := gstr.TrimStr(str, "\t")
+	// 去除换行符
+	trimStr = gstr.TrimStr(trimStr, "\n")
+	// 去除首尾空白字符
+	return gstr.Trim(trimStr)
 }
