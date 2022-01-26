@@ -1,9 +1,10 @@
-package hjsoup
+package hcache
 
 import (
 	"github.com/buraksezer/olric"
 	"github.com/buraksezer/olric/config"
 	"github.com/gogf/gf/frame/g"
+	"github.com/happylay-cloud/gf-extend/common/hjsoup"
 	"github.com/xujiajun/nutsdb"
 
 	"context"
@@ -57,7 +58,7 @@ func TestOlricCache(t *testing.T) {
 		// 接口断言
 		v, ok := value.(string)
 		if ok {
-			productCodeDto := ProductCodeDto{}
+			productCodeDto := hjsoup.ProductCodeDto{}
 			err := json.Unmarshal([]byte(v), &productCodeDto)
 			if err != nil {
 				return
@@ -69,7 +70,7 @@ func TestOlricCache(t *testing.T) {
 	}
 
 	// 查询数据
-	productCodeInfo, err := SearchByProductCode(productCode, false)
+	productCodeInfo, err := hjsoup.SearchByProductCode(productCode, false)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -89,7 +90,7 @@ func TestOlricCache(t *testing.T) {
 	// 接口断言
 	v, ok := value.(string)
 	if ok {
-		productCodeDto := ProductCodeDto{}
+		productCodeDto := hjsoup.ProductCodeDto{}
 		err := json.Unmarshal([]byte(v), &productCodeDto)
 		if err != nil {
 			return
@@ -231,5 +232,53 @@ func TestNutsDbCacheQuery(t *testing.T) {
 			return nil
 		}); err != nil {
 		log.Println(err)
+	}
+}
+
+func TestNutsDbCacheMerge(t *testing.T) {
+	// 默认配置
+	opt := nutsdb.DefaultOptions
+	// 自动创建数据库
+	opt.Dir = "./.cache/nutsdb"
+	// 开启数据库
+	db, err := nutsdb.Open(opt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func(db *nutsdb.DB) {
+		err := db.Close()
+		if err != nil {
+			g.Log().Line(false).Error("数据库关闭异常：", err.Error())
+		}
+	}(db)
+
+	err = db.Merge()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func TestNutsDbCacheBackup(t *testing.T) {
+	// 默认配置
+	opt := nutsdb.DefaultOptions
+	// 自动创建数据库
+	opt.Dir = "./.cache/nutsdb"
+	// 开启数据库
+	db, err := nutsdb.Open(opt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func(db *nutsdb.DB) {
+		err := db.Close()
+		if err != nil {
+			g.Log().Line(false).Error("数据库关闭异常：", err.Error())
+		}
+	}(db)
+
+	err = db.Backup(".cache/backup")
+	if err != nil {
+		log.Fatal(err)
 	}
 }
