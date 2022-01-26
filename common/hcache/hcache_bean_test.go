@@ -1,6 +1,7 @@
 package hcache
 
 import (
+	"github.com/gogf/gf/frame/g"
 	"github.com/xujiajun/nutsdb"
 
 	"fmt"
@@ -38,4 +39,19 @@ func TestNutsDbCacheBean(t *testing.T) {
 		log.Println(err)
 	}
 
+}
+
+func TestNutsDbSetCache(t *testing.T) {
+	err := SetCache("b1", []byte("k1"), []byte("测试"), 20)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func TestNutsDbGetCache(t *testing.T) {
+	entry, err := GetCache("b1", []byte("k1"))
+	if err != nil {
+		return
+	}
+	g.Dump(string(entry.Value))
 }

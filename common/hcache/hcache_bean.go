@@ -4,9 +4,9 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 	"github.com/xujiajun/nutsdb"
-	"os"
 
 	"errors"
+	"os"
 	"sync"
 )
 
@@ -69,11 +69,11 @@ func GetNutsDbCacheBean() (*nutsdb.DB, error) {
 	return nutsDbCache, nutsDbCacheErr
 }
 
-// InitSetNutsDbGlobalPath 初始化NutsDb数据库安装路径，仅初始化一次，默认安装位置：/tmp/hcache/nutsdb/.cache/db
+// InitSetNutsDbGlobalPath 初始化NutsDb数据库安装路径，仅初始化一次，默认安装位置：/tmp/hcache/nutsdb/.cache/db，建议：在init方法下初始化NutsDb安装路径
 func InitSetNutsDbGlobalPath(dir string) error {
 	if nutsDbCache != nil {
 		g.Log().Line(false).Error("初始化NutsDb数据库安装路径失败，已初始化位置：" + nutsDbPath)
-		return errors.New("初始化NutsDb数据库安装路径失败，已初始化位置：" + nutsDbPath)
+		return errors.New("初始化NutsDb缓存数据库安装路径失败，已初始化位置：" + nutsDbPath)
 	}
 	// 更改默认安装路径
 	nutsDbPath = dir
@@ -86,4 +86,46 @@ func GetInitNutsDbGlobalPath() (string, error) {
 		return "", errors.New("NutsDb缓存数据库还未初始化")
 	}
 	return nutsDbPath, nil
+}
+
+// SetCache 添加或更新缓存数据
+func SetCache(bucket string, key []byte, value []byte, ttl uint32) error {
+	// 获取实例单例缓存
+	db, err := GetNutsDbCacheBean()
+	if err != nil {
+		return err
+	}
+	// 添加或更新缓存数据
+	if err = db.Update(
+		func(tx *nutsdb.Tx) error {
+			if err = tx.Put(bucket, key, value, ttl); err != nil {
+				return err
+			}
+			return nil
+		}); err != nil {
+		return err
+	}
+	return err
+}
+
+// GetCache 获取缓存数据
+func GetCache(bucket string, key []byte) (entry *nutsdb.Entry, err error) {
+	// 获取实例单例缓存
+	db, err := GetNutsDbCacheBean()
+	if err != nil {
+		return nil, err
+	}
+	// 获取缓存数据
+	if err = db.View(
+		func(tx *nutsdb.Tx) error {
+			if entry, err = tx.Get(bucket, key); err != nil {
+				return err
+			}
+			return nil
+
+		}); err != nil {
+		return nil, err
+	}
+
+	return entry, err
 }
