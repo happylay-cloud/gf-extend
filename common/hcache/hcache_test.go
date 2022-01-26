@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-func TestOlricCache(t *testing.T) {
+func TestOlricQueryCache(t *testing.T) {
 
 	// 商品条码
 	productCode := "6921168509256"
@@ -101,6 +101,38 @@ func TestOlricCache(t *testing.T) {
 	// 关闭缓存数据库
 	ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
 	_ = db.Shutdown(ctx)
+
+}
+
+func TestNutsDbQueryCache(t *testing.T) {
+	// 商品条码
+	productCode := "6921168509256"
+
+	// 查询缓存
+	entry, err := GetCache("product_code_list", []byte(productCode))
+	if err == nil {
+		productCodeDto := hjsoup.ProductCodeDto{}
+		err := json.Unmarshal(entry.Value, &productCodeDto)
+		if err != nil {
+			return
+		}
+		g.Dump("缓存中读取：", productCodeDto)
+		return
+	}
+
+	// 查询数据
+	productCodeInfo, err := hjsoup.SearchByProductCode(productCode, false)
+	if err != nil {
+		fmt.Println(err)
+	}
+	jsonByte, err := json.Marshal(productCodeInfo)
+	if err == nil {
+		// 保存缓存
+		err := SetCache("product_code_list", []byte(productCode), jsonByte, 0)
+		if err != nil {
+			return
+		}
+	}
 
 }
 
