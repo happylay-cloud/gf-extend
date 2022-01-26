@@ -4,9 +4,9 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 	"github.com/xujiajun/nutsdb"
+	"os"
 
 	"errors"
-	"os"
 	"sync"
 )
 
@@ -19,17 +19,43 @@ var nutsDbCacheErr error
 // once 只操作一次对象
 var once sync.Once
 
-// nutsDbPath
-var nutsDbPath = "/tmp/hcache/nutsdb/.cache/db"
+// defaultNutsDbPath 默认安装路径
+var defaultNutsDbPath = "/tmp/hcache/nutsdb/.cache/db"
+
+// nutsDbPath 真正安装路径
+var nutsDbPath string
 
 // GetNutsDbCacheBean 获取实例化单例缓存对象
 func GetNutsDbCacheBean() (*nutsdb.DB, error) {
 
 	once.Do(func() {
+
+		if gstr.LenRune(nutsDbPath) == 0 {
+			// 启用默认安装路径
+			nutsDbPath = defaultNutsDbPath
+			g.Log().Line(false).Warning("启用NutsDb缓存数据库默认安装路径，安装路径：" + nutsDbPath +
+				"，警告：默认的NutsDb安装路径，在同时启动多个项目下可能会产生缓存共享，建议使用自定义安装路径，调用方法：hcache.InitSetNutsDbGlobalPath()。")
+		} else {
+			// 解析安装真正安装路径
+			var realPath string
+			// 路径处理
+			if gstr.HasPrefix(nutsDbPath, "./") {
+				pwd, err := os.Getwd()
+				if err != nil {
+					nutsDbCacheErr = err
+				}
+				realPath = pwd + gstr.TrimLeftStr(nutsDbPath, ".")
+			} else {
+				realPath = nutsDbPath
+			}
+			g.Log().Line(false).Info("启用自定义NutsDb缓存数据库安装路径，安装路径：" + realPath)
+		}
+
 		// 默认配置
 		opt := nutsdb.DefaultOptions
+
 		// 自动创建数据库
-		opt.Dir = GetNutsDbGlobalPath()
+		opt.Dir = nutsDbPath
 		// 开启数据库
 		db, err := nutsdb.Open(opt)
 		if err != nil {
@@ -37,20 +63,7 @@ func GetNutsDbCacheBean() (*nutsdb.DB, error) {
 		}
 		nutsDbCache = db
 
-		// 解析安装真正路径
-		var realPath string
-
-		if gstr.HasPrefix(nutsDbPath, "./") {
-			pwd, err := os.Getwd()
-			if err != nil {
-				nutsDbCacheErr = err
-			}
-			realPath = pwd + gstr.TrimLeftStr(nutsDbPath, ".")
-		} else {
-			realPath = nutsDbPath
-		}
-
-		g.Log().Line(false).Info("完成NutsDb缓存数据库实例化，当前安装路径：" + realPath)
+		g.Log().Line(false).Info("完成NutsDb缓存数据库实例化。")
 	})
 
 	return nutsDbCache, nutsDbCacheErr
@@ -67,7 +80,10 @@ func InitSetNutsDbGlobalPath(dir string) error {
 	return nil
 }
 
-// GetNutsDbGlobalPath 获取NutsDb数据库安装路径
-func GetNutsDbGlobalPath() string {
-	return nutsDbPath
+// GetInitNutsDbGlobalPath 获取NutsDb数据库安装路径，当且仅当数据库实例化才可获取安装路径
+func GetInitNutsDbGlobalPath() (string, error) {
+	if nutsDbCache == nil {
+		return "", errors.New("NutsDb缓存数据库还未初始化")
+	}
+	return nutsDbPath, nil
 }
