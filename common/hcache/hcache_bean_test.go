@@ -10,9 +10,16 @@ import (
 
 func TestNutsDbCacheBean(t *testing.T) {
 
-	// 获取单例缓存bean
-	db, err := NewNutsDbCacheBean()
+	// 初始化缓存安装路径（覆盖默认安装路径）
+	err := InitSetNutsDbGlobalPath("./.cache/nutsdb")
 	if err != nil {
+		return
+	}
+
+	// 获取单例缓存bean
+	db, err := GetNutsDbCacheBean()
+	if err != nil {
+		log.Println(err)
 		return
 	}
 
