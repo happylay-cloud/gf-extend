@@ -2,17 +2,22 @@ package hjsoup
 
 import (
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 	"io/ioutil"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
 
 func TestHttpClient(t *testing.T) {
+
+	// 商品条码
+	var productCode = "6956401264074"
 
 	// 1.获取验证码信息
 	response, err := g.Client().
@@ -66,7 +71,7 @@ func TestHttpClient(t *testing.T) {
 
 	// 此处传参是正确的
 	formData1 := map[string]string{
-		"productCode":  "6956401264074",
+		"productCode":  productCode,
 		"batchNo":      "",
 		"productCode1": "",
 		"traceCode":    "",
@@ -78,7 +83,7 @@ func TestHttpClient(t *testing.T) {
 
 	// 警告：不能按照这种方式传参->使用FormPost方法，此处cookie会丢失
 	formData2 := url.Values{
-		"productCode":  {"6956401264074"},
+		"productCode":  {productCode},
 		"batchNo":      {""},
 		"productCode1": {""},
 		"traceCode":    {""},
@@ -108,8 +113,113 @@ func TestHttpClient(t *testing.T) {
 		return
 	}
 
-	fmt.Println(string(body))
+	//fmt.Println(string(body))
 
-	fmt.Println(formResp.Request.Cookies())
+	//fmt.Println(formResp.Request.Cookies())
 
+	// 商品条码信息
+	productCodeDto := ProductCodeDto{}
+	// 设置商品条码
+	productCodeDto.ProductCode = productCode
+
+	// 4.解析数据
+	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	if err != nil {
+		return
+	}
+
+	// ID选择器，处理企业信息
+	dom.Find("#company").Each(func(i int, selection *goquery.Selection) {
+		selection.Find("p").Each(func(i int, selection *goquery.Selection) {
+			switch i {
+			case 0:
+				// 设置企业名称
+				productCodeDto.CompanyName = selection.Find("span").Text()
+			case 1:
+				// 设置企业注册地址
+				productCodeDto.CompanyAddress = selection.Find("span").Text()
+			}
+		})
+	})
+
+	productDiv := dom.Find("#product")
+
+	// class选择器
+	table := productDiv.Find(".table")
+
+	table.Find("tr").Each(func(t1 int, selection1 *goquery.Selection) {
+
+		// 处理tr单元格
+		selection1.Find("td").Each(func(t2 int, selection2 *goquery.Selection) {
+			if t2 == 1 {
+				switch t1 {
+				case 1:
+					// 设置产品名称
+					productCodeDto.ProductName = selection2.Text()
+				case 2:
+					// 设置产品分类
+					productCodeDto.ProductCategory = selection2.Text()
+				case 3:
+					// 设置品牌
+					productCodeDto.Brand = selection2.Text()
+				case 4:
+					// 设置商品规格
+					productCodeDto.ProductSpec = selection2.Text()
+				case 5:
+					// 设置标准号
+					productCodeDto.StandardNo = selection2.Text()
+				case 6:
+					// 设置标准名称
+					productCodeDto.StandardName = selection2.Text()
+				case 7:
+					// 设置保质期
+					productCodeDto.ProductExp = selection2.Text()
+				case 8:
+					// 设置上市日期
+					productCodeDto.UpMarketTime = selection2.Text()
+				case 9:
+					// 设置下市日期
+					productCodeDto.DownMarketTime = selection2.Text()
+				}
+			}
+
+		})
+	})
+
+	// 实例化图片切片
+	imgList := make([]string, 0)
+
+	// 元素选择器，处理图片列表
+	table.Find("img").Each(func(i int, selection *goquery.Selection) {
+		src, _ := selection.Attr("src")
+		if i == 0 {
+			// 设置条形码图片
+			productCodeDto.ProductCodeImage = src
+		} else {
+			imgList = append(imgList, src)
+		}
+
+	})
+	// 设置图片列表
+	productCodeDto.ProductImageList = imgList
+
+	g.Dump(productCodeDto)
+}
+
+// ProductCodeDto 商品条码信息
+type ProductCodeDto struct {
+	ProductCode      string   // 商品条码
+	ProductCodeImage string   // 商品条形码图片
+	CompanyName      string   // 企业名称
+	CompanyAddress   string   // 企业注册地址
+	ProductName      string   // 产品名称
+	ProductCategory  string   // 产品分类
+	Brand            string   // 品牌
+	ProductSpec      string   // 产品规格
+	StandardNo       string   // 标准号
+	StandardName     string   // 标准名称
+	ProductExp       string   // 保质期
+	UpMarketTime     string   //  上市日期
+	DownMarketTime   string   // 下市日期
+	ProductImageList []string // 图片列表
 }
