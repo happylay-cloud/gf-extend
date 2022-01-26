@@ -42,7 +42,7 @@ func TestNutsDbCacheBean(t *testing.T) {
 }
 
 func TestNutsDbSetCache(t *testing.T) {
-	err := SetCache("b1", []byte("k1"), []byte("测试"), 20)
+	err := SetCache("b1", []byte("k1"), []byte("永久缓存"), 0)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -54,4 +54,11 @@ func TestNutsDbGetCache(t *testing.T) {
 		return
 	}
 	g.Dump(string(entry.Value))
+}
+
+func TestNutsDbDelCache(t *testing.T) {
+	err := DelCache("b1", []byte("k1"))
+	if err != nil {
+		return
+	}
 }

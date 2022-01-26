@@ -1,13 +1,13 @@
 package hcache
 
 import (
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/text/gstr"
-	"github.com/xujiajun/nutsdb"
-
 	"errors"
 	"os"
 	"sync"
+
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/text/gstr"
+	"github.com/xujiajun/nutsdb"
 )
 
 // nutsDbCache 单例缓存对象
@@ -128,4 +128,25 @@ func GetCache(bucket string, key []byte) (entry *nutsdb.Entry, err error) {
 	}
 
 	return entry, err
+}
+
+// DelCache 删除缓存数据
+func DelCache(bucket string, key []byte) (err error) {
+	// 获取实例单例缓存
+	db, err := GetNutsDbCacheBean()
+	if err != nil {
+		return err
+	}
+	// 删除缓存
+	if err = db.Update(
+		func(tx *nutsdb.Tx) error {
+			if err = tx.Delete(bucket, key); err != nil {
+				return err
+			}
+			return nil
+		}); err != nil {
+		return err
+	}
+
+	return err
 }
