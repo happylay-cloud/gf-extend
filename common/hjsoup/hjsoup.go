@@ -1,7 +1,6 @@
 package hjsoup
 
 import (
-	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
@@ -57,11 +56,12 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	// 会话sessionId
 	sessionId := cookies[0].Value
 
-	fmt.Println("当前会话：", sessionId)
+	g.Log().Line(false).Debug("当前会话：", sessionId)
 
 	// 2.查询y值
 	y := gjson.New(response.ReadAllString()).GetString("y")
-	fmt.Println("验证码y值：", y)
+
+	g.Log().Line(false).Info("验证码y值：", y)
 
 	// 定义有效x值
 	validX := ""
@@ -84,7 +84,7 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		if gstr.LenRune(body) > 0 {
 			doorCode = body
 			validX = strconv.Itoa(x)
-			fmt.Println("重试次数："+strconv.Itoa(x)+"次，", "成功获取验证码：", doorCode)
+			g.Log().Line(false).Debug("重试次数："+strconv.Itoa(x)+"次，", "成功获取验证码：", doorCode)
 			break
 		}
 	}
@@ -103,7 +103,7 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		"validX":       validX,
 	}
 
-	fmt.Println("请求参数：", formData1)
+	g.Log().Line(false).Info("请求参数：", formData1)
 
 	// 警告：不能按照这种方式传参->使用FormPost方法，此处cookie会丢失
 	formData2 := url.Values{
@@ -115,7 +115,7 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		"validX":       {validX},
 	}
 
-	fmt.Println("格式化参数：", formData2.Encode())
+	g.Log().Line(false).Info("格式化参数：", formData2.Encode())
 
 	formResp, err := g.Client().Timeout(20*time.Second).
 		SetCookieMap(map[string]string{
@@ -137,9 +137,10 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		return &productCodeDto, err
 	}
 
-	//fmt.Println(string(body))
-
-	//fmt.Println(formResp.Request.Cookies())
+	if debug {
+		g.Log().Line(false).Info("请求Cookie：", formResp.Request.Cookies())
+		g.Log().Line(false).Info("原始返回值：", string(body))
+	}
 
 	// 设置商品条码
 	productCodeDto.ProductCode = productCode
