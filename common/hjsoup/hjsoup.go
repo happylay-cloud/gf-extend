@@ -5,7 +5,10 @@ import (
 	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
+
 	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
+
+	"errors"
 	"io/ioutil"
 	"net/url"
 	"strconv"
@@ -35,10 +38,6 @@ type ProductCodeDto struct {
 //	@productCode	商品条码
 //	@debug			是否开启debug
 func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error) {
-
-	// 商品条码信息
-	productCodeDto := ProductCodeDto{}
-
 	// 1.获取验证码信息
 	response, err := g.Client().
 		Timeout(20 * time.Second).
@@ -48,7 +47,7 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		}).
 		Get("http://www.chinatrace.org/trace/verification/image?_=" + strconv.Itoa(time.Now().Second()*1000))
 	if err != nil {
-		return &productCodeDto, err
+		return nil, err
 	}
 
 	cookies := response.Cookies()
@@ -90,7 +89,7 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	}
 
 	if gstr.LenRune(doorCode) == 0 {
-		return &productCodeDto, err
+		return nil, errors.New("查询超时")
 	}
 
 	// 此处传参是正确的
@@ -105,17 +104,18 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 
 	g.Log().Line(false).Info("请求参数：", formData1)
 
-	// 警告：不能按照这种方式传参->使用FormPost方法，此处cookie会丢失
-	formData2 := url.Values{
-		"productCode":  {productCode},
-		"batchNo":      {""},
-		"productCode1": {""},
-		"traceCode":    {""},
-		"doorCode":     {doorCode},
-		"validX":       {validX},
+	if debug {
+		// 警告：不能按照这种方式传参->使用FormPost方法，此处cookie会丢失
+		formData2 := url.Values{
+			"productCode":  {productCode},
+			"batchNo":      {""},
+			"productCode1": {""},
+			"traceCode":    {""},
+			"doorCode":     {doorCode},
+			"validX":       {validX},
+		}
+		g.Log().Line(false).Info("格式化参数：", formData2.Encode())
 	}
-
-	g.Log().Line(false).Info("格式化参数：", formData2.Encode())
 
 	formResp, err := g.Client().Timeout(20*time.Second).
 		SetCookieMap(map[string]string{
@@ -129,12 +129,12 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		Post("http://www.chinatrace.org/trace/door/controller/SearchController/searchByProductCode.do", formData1)
 
 	if err != nil {
-		return &productCodeDto, err
+		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(formResp.Body)
 	if err != nil {
-		return &productCodeDto, err
+		return nil, err
 	}
 
 	if debug {
@@ -142,13 +142,16 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		g.Log().Line(false).Info("原始返回值：", string(body))
 	}
 
+	// 商品条码信息
+	productCodeDto := ProductCodeDto{}
+
 	// 设置商品条码
 	productCodeDto.ProductCode = productCode
 
 	// 4.解析数据
 	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
 	if err != nil {
-		return &productCodeDto, err
+		return nil, err
 	}
 
 	// ID选择器，处理企业信息
