@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
+	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
 	"io/ioutil"
 	"net/url"
 	"strconv"
@@ -176,31 +177,31 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 				switch t1 {
 				case 1:
 					// 设置产品名称
-					productCodeDto.ProductName = TrimBlank(selection2.Text())
+					productCodeDto.ProductName = hstr.TrimBlank(selection2.Text())
 				case 2:
 					// 设置产品分类
-					productCodeDto.ProductCategory = TrimBlank(selection2.Text())
+					productCodeDto.ProductCategory = hstr.TrimBlank(selection2.Text())
 				case 3:
 					// 设置品牌
-					productCodeDto.Brand = TrimBlank(selection2.Text())
+					productCodeDto.Brand = hstr.TrimBlank(selection2.Text())
 				case 4:
 					// 设置商品规格
-					productCodeDto.ProductSpec = TrimBlank(selection2.Text())
+					productCodeDto.ProductSpec = hstr.TrimBlank(selection2.Text())
 				case 5:
 					// 设置标准号
-					productCodeDto.StandardNo = TrimBlank(selection2.Text())
+					productCodeDto.StandardNo = hstr.TrimBlank(selection2.Text())
 				case 6:
 					// 设置标准名称
-					productCodeDto.StandardName = TrimBlank(selection2.Text())
+					productCodeDto.StandardName = hstr.TrimBlank(selection2.Text())
 				case 7:
 					// 设置保质期
-					productCodeDto.ProductExp = TrimBlank(selection2.Text())
+					productCodeDto.ProductExp = hstr.TrimBlank(selection2.Text())
 				case 8:
 					// 设置上市日期
-					productCodeDto.UpMarketTime = TrimBlank(selection2.Text())
+					productCodeDto.UpMarketTime = hstr.TrimBlank(selection2.Text())
 				case 9:
 					// 设置下市日期
-					productCodeDto.DownMarketTime = TrimBlank(selection2.Text())
+					productCodeDto.DownMarketTime = hstr.TrimBlank(selection2.Text())
 				}
 			}
 
@@ -225,14 +226,4 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	productCodeDto.ProductImageList = imgList
 
 	return &productCodeDto, nil
-}
-
-// TrimBlank 删除字符串首尾空白
-func TrimBlank(str string) string {
-	// 去除制表符
-	trimStr := gstr.TrimStr(str, "\t")
-	// 去除换行符
-	trimStr = gstr.TrimStr(trimStr, "\n")
-	// 去除首尾空白字符
-	return gstr.Trim(trimStr)
 }

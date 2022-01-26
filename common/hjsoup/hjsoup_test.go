@@ -13,7 +13,4 @@ func TestHttpClient(t *testing.T) {
 		fmt.Println(err)
 	}
 	g.Dump(productCode)
-
-	fmt.Println(TrimBlank(" \t这是一个去除首尾空白字符的测试。 \n "))
-
 }

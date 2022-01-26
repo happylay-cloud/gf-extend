@@ -23,10 +23,10 @@ type HTcpGlobalConfig struct {
 	ConfFilePath     string            // 配置文件路径
 }
 
-// 定义一个全局的对象
+// GlobalHTcpObject 定义一个全局的对象
 var GlobalHTcpObject *HTcpGlobalConfig
 
-// 判断一个文件是否存在
+// PathExists 判断一个文件是否存在
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -38,7 +38,7 @@ func PathExists(path string) (bool, error) {
 	return false, err
 }
 
-// 读取用户的配置文件
+// Reload 读取用户的配置文件
 func (global *HTcpGlobalConfig) Reload() {
 
 	if confFileExists, _ := PathExists(global.ConfFilePath); confFileExists != true {
