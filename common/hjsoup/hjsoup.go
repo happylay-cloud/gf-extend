@@ -1,19 +1,20 @@
 package hjsoup
 
 import (
-	"github.com/PuerkitoBio/goquery"
-	"github.com/gogf/gf/encoding/gjson"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/text/gstr"
-
-	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
-
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gogf/gf/encoding/gjson"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/text/gstr"
+	"github.com/happylay-cloud/gf-extend/common/hcache"
+	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
 )
 
 // ProductCodeDto 商品条码信息
@@ -230,4 +231,42 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	productCodeDto.ProductImageList = imgList
 
 	return &productCodeDto, nil
+}
+
+// SearchByProductCodeCache 根据商品条码查询商品信息，优先基于本地缓存，警告：此方法仅供学习参考，禁止用于商业
+// @productCode	商品条码
+func SearchByProductCodeCache(productCode string) (productCodeDto *ProductCodeDto, err error) {
+
+	// 缓存桶
+	cacheBucket := "bucket_default_product_code"
+
+	// 查询缓存
+	entry, err := hcache.GetCache(cacheBucket, []byte(productCode))
+	if err == nil {
+		err = json.Unmarshal(entry.Value, &productCodeDto)
+		if err != nil {
+			return nil, err
+		}
+
+		return productCodeDto, nil
+	}
+
+	// 查询数据
+	productCodeInfo, err := SearchByProductCode(productCode, false)
+	if err == nil {
+		jsonByte, err := json.Marshal(productCodeInfo)
+		if err == nil {
+			// 异步保存缓存
+			go func() {
+				err = hcache.SetCache(cacheBucket, []byte(productCode), jsonByte, 0)
+				if err != nil {
+					g.Log().Line(false).Error("NutsDb保存缓存失败，异常信息：" + err.Error())
+				}
+			}()
+
+			return productCodeInfo, nil
+		}
+	}
+
+	return productCodeInfo, err
 }

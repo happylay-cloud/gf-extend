@@ -4,7 +4,6 @@ import (
 	"github.com/buraksezer/olric"
 	"github.com/buraksezer/olric/config"
 	"github.com/gogf/gf/frame/g"
-	"github.com/happylay-cloud/gf-extend/common/hjsoup"
 	"github.com/xujiajun/nutsdb"
 
 	"context"
@@ -15,10 +14,12 @@ import (
 	"time"
 )
 
-func TestOlricQueryCache(t *testing.T) {
+// testOlricCacheValue 测试用缓存结构体
+type testOlricCacheValue struct {
+	Value string
+}
 
-	// 商品条码
-	productCode := "6921168509256"
+func TestOlricCache(t *testing.T) {
 
 	// 配置本地缓存
 	c := config.New("local")
@@ -48,91 +49,42 @@ func TestOlricQueryCache(t *testing.T) {
 	<-ctx.Done()
 
 	// 创建map缓存类型
-	dm, err := db.NewDMap("ProductCodeInfoMap")
+	dm, err := db.NewDMap("cacheMap")
 	if err != nil {
 		panic(err)
 	}
 
-	value, err := dm.Get(productCode)
-	if err == nil {
-		// 接口断言
-		v, ok := value.(string)
-		if ok {
-			productCodeDto := hjsoup.ProductCodeDto{}
-			err := json.Unmarshal([]byte(v), &productCodeDto)
-			if err != nil {
-				return
-			}
-			g.Dump("缓存中读取：", productCodeDto)
-		}
+	key := "k1"
 
-		return
-	}
-
-	// 查询数据
-	productCodeInfo, err := hjsoup.SearchByProductCode(productCode, false)
-	if err != nil {
-		fmt.Println(err)
-	}
-	jsonByte, err := json.Marshal(productCodeInfo)
+	jsonByte, err := json.Marshal(&testOlricCacheValue{
+		Value: "测试缓存值",
+	})
 	if err != nil {
 		return
 	}
 
 	g.Dump("存储缓存值：", string(jsonByte))
-	err = dm.Put(productCodeInfo.ProductCode, string(jsonByte))
+	err = dm.Put(key, string(jsonByte))
 
-	value, err = dm.Get(productCodeInfo.ProductCode)
+	value, err := dm.Get(key)
 	if err != nil {
 		panic(err)
 	}
 
 	// 接口断言
-	v, ok := value.(string)
+	v1, ok := value.(string)
 	if ok {
-		productCodeDto := hjsoup.ProductCodeDto{}
-		err := json.Unmarshal([]byte(v), &productCodeDto)
+		cacheV1 := testOlricCacheValue{}
+		err := json.Unmarshal([]byte(v1), &cacheV1)
 		if err != nil {
 			return
 		}
-		g.Dump("缓存中读取：", productCodeDto)
+		g.Dump("缓存中读取：", cacheV1)
 	}
 
 	// 关闭缓存数据库
 	ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
 	_ = db.Shutdown(ctx)
-
-}
-
-func TestNutsDbQueryCache(t *testing.T) {
-	// 商品条码
-	productCode := "6921168509256"
-
-	// 查询缓存
-	entry, err := GetCache("product_code_list", []byte(productCode))
-	if err == nil {
-		productCodeDto := hjsoup.ProductCodeDto{}
-		err := json.Unmarshal(entry.Value, &productCodeDto)
-		if err != nil {
-			return
-		}
-		g.Dump("缓存中读取：", productCodeDto)
-		return
-	}
-
-	// 查询数据
-	productCodeInfo, err := hjsoup.SearchByProductCode(productCode, false)
-	if err != nil {
-		fmt.Println(err)
-	}
-	jsonByte, err := json.Marshal(productCodeInfo)
-	if err == nil {
-		// 保存缓存
-		err := SetCache("product_code_list", []byte(productCode), jsonByte, 0)
-		if err != nil {
-			return
-		}
-	}
 
 }
 
