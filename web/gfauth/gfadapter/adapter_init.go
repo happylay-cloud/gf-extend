@@ -17,7 +17,7 @@ const (
 	pgsql  = "pgsql"
 )
 
-// 从自定义数据库连接中创建适配器
+// NewAdapterByGdb 从自定义数据库连接中创建适配器
 func NewAdapterByGdb(customDb gdb.DB) (*Adapter, error) {
 
 	// 获取当前数据库类型

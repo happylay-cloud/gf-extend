@@ -8,10 +8,10 @@ import (
 	"github.com/gogf/gf/frame/g"
 )
 
-// 单例casbin同步执行器
+// Enforcer 单例casbin同步执行器
 var Enforcer *casbin.SyncedEnforcer
 
-// 单例casbin执行器错误对象
+// EnforcerErr 单例casbin执行器错误对象
 var EnforcerErr error
 
 // 只操作一次对象
