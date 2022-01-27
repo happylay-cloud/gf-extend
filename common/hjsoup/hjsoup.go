@@ -1,24 +1,23 @@
 package hjsoup
 
 import (
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gogf/gf/encoding/gjson"
+	"github.com/gogf/gf/frame/g"
+	"github.com/gogf/gf/text/gstr"
+	"github.com/happylay-cloud/gf-extend/common/hcache"
+	"github.com/happylay-cloud/gf-extend/common/hutils/hctx"
+	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
+
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"github.com/happylay-cloud/gf-extend/common/hutils/hctx"
 	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/PuerkitoBio/goquery"
-	"github.com/gogf/gf/encoding/gjson"
-	"github.com/gogf/gf/frame/g"
-	"github.com/gogf/gf/text/gstr"
-	"github.com/happylay-cloud/gf-extend/common/hcache"
-	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
 )
 
 // ProductCodeDto 商品条码信息
@@ -90,7 +89,10 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 
 	// 执行任务
 	successOne, err := doManyTask.DoTaskSuccessOne(nil, func(do *hctx.DoManyTask, ctx context.Context, channel chan interface{}, wg *sync.WaitGroup, index int, params interface{}) {
-		fmt.Println("任务执行中...，序号：", index)
+
+		if debug {
+			g.Log().Line(false).Debug("任务执行中...，序号：", index)
+		}
 
 		// ************************ 业务处理 ************************
 
@@ -100,7 +102,7 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 		var isNeedReturn bool
 
 		// 校验验证码
-		respDoorCode, respX, err := validQrCode(index, y, sessionId, true)
+		respDoorCode, respX, err := validQrCode(index, y, sessionId, debug)
 		if err == nil {
 			taskValue.DoorCode = respDoorCode
 			taskValue.ValidX = respX
@@ -198,6 +200,11 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 
 	// 设置商品条码
 	productCodeDto.ProductCode = productCode
+
+	// 处理异常信息，返回json而不是html
+	if gstr.LenRune(string(body)) < 500 {
+		return nil, errors.New("请求频繁，稍后再试")
+	}
 
 	// 4.解析数据
 	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))

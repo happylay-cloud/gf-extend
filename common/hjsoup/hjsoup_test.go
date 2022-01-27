@@ -18,12 +18,12 @@ func TestHttpClient(t *testing.T) {
 
 func TestSearchByProductCodeCache(t *testing.T) {
 	// 商品条码
-	productCode := "6920999705042"
+	productCode := "6931108920119"
 
-	productCodeInfo, err := SearchByProductCodeCache(productCode, false)
+	productCodeInfo, err := SearchByProductCodeCache(productCode, true)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	g.Dump(productCodeInfo)
+	g.Log().Line(false).Info(productCodeInfo)
 }
