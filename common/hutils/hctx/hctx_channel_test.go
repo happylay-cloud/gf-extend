@@ -84,10 +84,9 @@ func TestTaskContext(t *testing.T) {
 
 	// 定义任务
 	doManyTask := DoManyTask{
-		Count:      300,
-		ChannelObj: make(chan interface{}),
-		Timeout:    20 * time.Second,
-		Debug:      true,
+		Count:   300,
+		Timeout: 20 * time.Second,
+		Debug:   true,
 	}
 
 	// 定义返回值
@@ -97,10 +96,8 @@ func TestTaskContext(t *testing.T) {
 	}
 
 	// 执行任务
-	successOne, err := doManyTask.DoTaskSuccessOne(nil, func(do *DoManyTask, ctx context.Context, wg *sync.WaitGroup, index int, params interface{}) {
+	successOne, err := doManyTask.DoTaskSuccessOne(nil, func(do *DoManyTask, ctx context.Context, channel chan interface{}, wg *sync.WaitGroup, index int, params interface{}) {
 		fmt.Println("任务执行中...，序号：", index)
-		// 计数器减一
-		defer wg.Done()
 
 		// ************************ 业务处理 ************************
 
@@ -115,15 +112,13 @@ func TestTaskContext(t *testing.T) {
 
 		// ************************ 返回数据 ************************
 
-		// 返回数据
-		if gstr.LenRune(data) > 0 {
-			// 获取返回结果
-			do.WaitDataReturn(index, ctx, taskValue)
-		}
+		// 获取返回结果，必须执行
+		do.WaitDataReturn(true, ctx, channel, wg, index, taskValue)
+
 	})
 
 	if err != nil {
-		fmt.Println("任务执行失败：", err)
+		fmt.Println("多任务执行异常：", err)
 		return
 	}
 
@@ -132,4 +127,5 @@ func TestTaskContext(t *testing.T) {
 
 	// 获取返回值
 	g.Dump("任务返回值：", resp)
+
 }
