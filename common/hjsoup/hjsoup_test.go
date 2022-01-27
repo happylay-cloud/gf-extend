@@ -61,7 +61,11 @@ func TestChannel(t *testing.T) {
 	}
 
 	// 读取数据
-	data := <-doorCode
+	data, open := <-doorCode
+	if !open {
+		fmt.Println("通道已关闭，任务执行失败！！！！！！！！！！！！！！！！！！")
+		return
+	}
 
 	fmt.Println("读取业务返回数据：", data)
 
