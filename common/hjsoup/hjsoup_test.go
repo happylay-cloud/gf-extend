@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/text/gstr"
 	"github.com/google/uuid"
 
+	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -33,8 +34,10 @@ func TestSearchByProductCodeCache(t *testing.T) {
 
 func TestChannel(t *testing.T) {
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	// 创建验证码通道
-	doorCode := make(chan string)
+	doorCode := make(chan interface{})
 
 	// 设置计数器
 	count := 300
@@ -47,31 +50,39 @@ func TestChannel(t *testing.T) {
 
 	// 执行多个协程
 	for x := 1; x <= count; x++ {
-		go doSomething(x, doorCode, wg)
+		go doSomething(x, doorCode, ctx, wg)
 	}
 
-	for data := range doorCode {
-		fmt.Println("读取业务返回数据：", data)
-	}
+	data := <-doorCode
+	cancel()
+	fmt.Println("读取业务返回数据：", data)
 
 }
 
-func doSomething(x int, doorCode chan string, wg *sync.WaitGroup) {
+func deferCloseChannel(doorCode chan interface{}, wg *sync.WaitGroup) {
+	// 关闭通道
+	defer close(doorCode)
+
+	fmt.Println("..........................监控channel通道...............................")
+	// 子线程等待
+	wg.Wait()
+	fmt.Println("..........................关闭channel通道...............................")
+}
+
+func doSomething(x int, channel chan interface{}, ctx context.Context, wg *sync.WaitGroup) {
+	fmt.Println("任务执行中...，序号：", x)
+	// 计数器减一
+	defer wg.Done()
 	// 查询数据
 	data := uuid.New().String()
 	// 处理业务数据
 	if gstr.LenRune(data) > 0 {
-		doorCode <- data
+		select {
+		case <-ctx.Done(): // 取消执行
+			fmt.Println("关闭任务，序号", x)
+			break
+		case channel <- data: // 传递数据
+			fmt.Println("***********************任务执行成功，序号", x)
+		}
 	}
-	fmt.Println("执行协程业务：", x)
-	// 计数器减一
-	wg.Done()
-}
-
-func deferCloseChannel(doorCode chan string, wg *sync.WaitGroup) {
-	// 子线程等待
-	wg.Wait()
-	// 关闭通道
-	close(doorCode)
-	fmt.Println("关闭channel通道")
 }
