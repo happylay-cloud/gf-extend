@@ -1,6 +1,7 @@
 package hctx
 
 import (
+	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 	"github.com/google/uuid"
 
@@ -76,4 +77,32 @@ func doSomething(x int, channel chan interface{}, ctx context.Context, wg *sync.
 			fmt.Println("***********************任务执行成功，序号", x)
 		}
 	}
+}
+
+func TestTaskContext(t *testing.T) {
+
+	// 创建验证码通道
+	doorCode := make(chan interface{})
+
+	successOne, err := DoTaskSuccessOne(300, doorCode, 20*time.Second, func(ctx context.Context, wg *sync.WaitGroup, index int, params ...interface{}) {
+		fmt.Println("任务执行中...，序号：", index)
+		// 计数器减一
+		defer wg.Done()
+		// 查询数据
+		data := uuid.New().String()
+		// 处理业务数据
+		if gstr.LenRune(data) > 0 {
+			select {
+			case <-ctx.Done(): // 取消执行
+				fmt.Println("关闭任务，序号", index)
+				break
+			case doorCode <- data: // 传递数据
+				fmt.Println("***********************任务执行成功，序号", index)
+			}
+		}
+	})
+	if err != nil {
+		return
+	}
+	g.Dump("任务返回值：", successOne)
 }
