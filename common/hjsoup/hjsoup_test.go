@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestHttpClient(t *testing.T) {
@@ -34,7 +35,13 @@ func TestSearchByProductCodeCache(t *testing.T) {
 
 func TestChannel(t *testing.T) {
 
-	ctx, cancel := context.WithCancel(context.Background())
+	// 创建上下文
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// 上下文传值
+	ctx = context.WithValue(ctx, "desc", "关闭子协程")
+
+	// 取消上下文
+	defer cancel()
 
 	// 创建验证码通道
 	doorCode := make(chan interface{})
@@ -53,8 +60,9 @@ func TestChannel(t *testing.T) {
 		go doSomething(x, doorCode, ctx, wg)
 	}
 
+	// 读取数据
 	data := <-doorCode
-	cancel()
+
 	fmt.Println("读取业务返回数据：", data)
 
 }
@@ -71,6 +79,7 @@ func deferCloseChannel(doorCode chan interface{}, wg *sync.WaitGroup) {
 
 func doSomething(x int, channel chan interface{}, ctx context.Context, wg *sync.WaitGroup) {
 	fmt.Println("任务执行中...，序号：", x)
+	fmt.Println("上下文传值：", ctx.Value("desc"))
 	// 计数器减一
 	defer wg.Done()
 	// 查询数据
