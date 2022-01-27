@@ -9,7 +9,7 @@ import (
 
 func TestHttpClient(t *testing.T) {
 
-	productCode, err := SearchByProductCode("6921168509256", false)
+	productCode, err := SearchByProductCode("6928804011111", false)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -18,9 +18,9 @@ func TestHttpClient(t *testing.T) {
 
 func TestSearchByProductCodeCache(t *testing.T) {
 	// 商品条码
-	productCode := "6928804011142"
+	productCode := "6920999705042"
 
-	productCodeInfo, err := SearchByProductCodeCache(productCode)
+	productCodeInfo, err := SearchByProductCodeCache(productCode, false)
 	if err != nil {
 		fmt.Println(err)
 	}

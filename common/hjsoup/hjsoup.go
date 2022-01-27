@@ -1,12 +1,16 @@
 package hjsoup
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/happylay-cloud/gf-extend/common/hutils/hctx"
 	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -69,25 +73,71 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	// 定义验证码
 	doorCode := ""
 
-	// 3.解析验证码
-	for x := 0; x < 350; x++ {
-		body := g.Client().
-			SetCookieMap(map[string]string{
-				"JSESSIONID": sessionId,
-			}).
-			Header(map[string]string{
-				"Host":       "www.chinatrace.org",
-				"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
-			}).
-			PostContent("http://www.chinatrace.org/trace/verification/result?x=" + strconv.Itoa(x) + "&y=" + y)
+	// ******************************** 多任务处理-开始 ********************************
 
-		if gstr.LenRune(body) > 0 {
-			doorCode = body
-			validX = strconv.Itoa(x)
-			g.Log().Line(false).Debug("重试次数："+strconv.Itoa(x)+"次，", "成功获取验证码：", doorCode)
-			break
-		}
+	// 定义任务
+	doManyTask := hctx.DoManyTask{
+		Count:   350,
+		Timeout: 20 * time.Second,
+		Debug:   true,
 	}
+
+	// 定义返回值
+	type testTaskValue struct {
+		ValidX   string
+		DoorCode string
+	}
+
+	// 执行任务
+	successOne, err := doManyTask.DoTaskSuccessOne(nil, func(do *hctx.DoManyTask, ctx context.Context, channel chan interface{}, wg *sync.WaitGroup, index int, params interface{}) {
+		fmt.Println("任务执行中...，序号：", index)
+
+		// ************************ 业务处理 ************************
+
+		// 封装数据
+		taskValue := testTaskValue{}
+
+		var isNeedReturn bool
+
+		// 校验验证码
+		respDoorCode, respX, err := validQrCode(index, y, sessionId, true)
+		if err == nil {
+			taskValue.DoorCode = respDoorCode
+			taskValue.ValidX = respX
+			isNeedReturn = true
+		} else {
+			isNeedReturn = false
+		}
+
+		// ************************ 返回数据 ************************
+
+		// 获取返回结果，必须执行
+		do.WaitDataReturn(isNeedReturn, ctx, channel, wg, index, taskValue)
+
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取返回值
+	resp := successOne.(testTaskValue)
+
+	// 解析返回值validX
+	validX = resp.ValidX
+
+	// 解析验证码
+	doorCode = resp.DoorCode
+
+	x, err := strconv.Atoi(validX)
+	if err != nil {
+		return nil, err
+	}
+
+	// 必须重新验证一次（多次验证只有最后一次生效）
+	doorCode, validX, err = validQrCode(x, y, sessionId, true)
+
+	// ******************************** 多任务处理-结束 ********************************
 
 	if gstr.LenRune(doorCode) == 0 {
 		return nil, errors.New("查询超时")
@@ -230,6 +280,10 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	// 设置图片列表
 	productCodeDto.ProductImageList = imgList
 
+	if gstr.LenRune(productCodeDto.ProductName) == 0 {
+		return nil, errors.New("未知商品")
+	}
+
 	return &productCodeDto, nil
 }
 
@@ -249,7 +303,7 @@ func validQrCode(x int, y string, sessionId string, debug bool) (doorCode string
 		doorCode = body
 		validX = strconv.Itoa(x)
 		if debug {
-			g.Log().Line(false).Debug("重试次数："+strconv.Itoa(x)+"次，", "成功获取验证码：", doorCode)
+			g.Log().Line(false).Debug("Valid："+strconv.Itoa(x)+"，", "验证码：", doorCode)
 		}
 		return doorCode, validX, nil
 	}
@@ -259,7 +313,7 @@ func validQrCode(x int, y string, sessionId string, debug bool) (doorCode string
 
 // SearchByProductCodeCache 根据商品条码查询商品信息，优先基于本地缓存，警告：此方法仅供学习参考，禁止用于商业
 // @productCode	商品条码
-func SearchByProductCodeCache(productCode string) (productCodeDto *ProductCodeDto, err error) {
+func SearchByProductCodeCache(productCode string, debug bool) (productCodeDto *ProductCodeDto, err error) {
 
 	// 缓存桶
 	cacheBucket := "bucket_default_product_code"
@@ -276,7 +330,8 @@ func SearchByProductCodeCache(productCode string) (productCodeDto *ProductCodeDt
 	}
 
 	// 查询数据
-	productCodeInfo, err := SearchByProductCode(productCode, false)
+	productCodeInfo, err := SearchByProductCode(productCode, debug)
+
 	if err == nil {
 		jsonByte, err := json.Marshal(productCodeInfo)
 		if err == nil {
