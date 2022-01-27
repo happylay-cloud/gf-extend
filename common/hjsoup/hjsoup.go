@@ -233,6 +233,30 @@ func SearchByProductCode(productCode string, debug bool) (*ProductCodeDto, error
 	return &productCodeDto, nil
 }
 
+// validQrCode 验证二维码
+func validQrCode(x int, y string, sessionId string, debug bool) (doorCode string, validX string, err error) {
+	body := g.Client().
+		SetCookieMap(map[string]string{
+			"JSESSIONID": sessionId,
+		}).
+		Header(map[string]string{
+			"Host":       "www.chinatrace.org",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+		}).
+		PostContent("http://www.chinatrace.org/trace/verification/result?x=" + strconv.Itoa(x) + "&y=" + y)
+
+	if gstr.LenRune(body) > 0 {
+		doorCode = body
+		validX = strconv.Itoa(x)
+		if debug {
+			g.Log().Line(false).Debug("重试次数："+strconv.Itoa(x)+"次，", "成功获取验证码：", doorCode)
+		}
+		return doorCode, validX, nil
+	}
+
+	return "", "", errors.New("验证无效")
+}
+
 // SearchByProductCodeCache 根据商品条码查询商品信息，优先基于本地缓存，警告：此方法仅供学习参考，禁止用于商业
 // @productCode	商品条码
 func SearchByProductCodeCache(productCode string) (productCodeDto *ProductCodeDto, err error) {
