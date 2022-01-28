@@ -13,6 +13,9 @@
 
 > go get -u -v -d github.com/happylay-cloud/gf-extend
 
+`指定版本`
+> go get github.com/happylay-cloud/gf-extend@v1.2.0
+
 **或**
 
 > require github.com/happylay-cloud/gf-extend latest

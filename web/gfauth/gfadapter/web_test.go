@@ -5,7 +5,7 @@ import (
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-	"github.com/happylay-cloud/gf-extend/common/hres"
+	"github.com/happylay-cloud/gf-extend/common/hresp"
 )
 
 func TestGf(t *testing.T) {
@@ -20,5 +20,5 @@ func TestGf(t *testing.T) {
 }
 
 func hi(r *ghttp.Request) {
-	hres.Ok(r)
+	hresp.Ok(r)
 }

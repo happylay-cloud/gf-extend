@@ -1,4 +1,4 @@
-package gfutils
+package hnum
 
 import (
 	"fmt"

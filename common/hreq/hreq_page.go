@@ -1,4 +1,4 @@
-package gfreq
+package hreq
 
 // PageReq 分页请求参数
 type PageReq struct {

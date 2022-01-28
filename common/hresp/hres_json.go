@@ -1,4 +1,4 @@
-package hres
+package hresp
 
 import (
 	"github.com/gogf/gf/frame/g"

@@ -3,8 +3,7 @@ package hweb
 import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
-
-	"github.com/happylay-cloud/gf-extend/common/hres"
+	"github.com/happylay-cloud/gf-extend/common/hresp"
 )
 
 // MiddlewareErrorHandler 全局后置中间件捕获异常
@@ -20,6 +19,6 @@ func MiddlewareErrorHandler(r *ghttp.Request) {
 		// 清除系统异常响应
 		r.Response.ClearBuffer()
 		// 返回自定义异常响应
-		hres.FailWithEx(r, err.Error())
+		hresp.FailWithEx(r, err.Error())
 	}
 }
