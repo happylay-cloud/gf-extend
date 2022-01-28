@@ -20,6 +20,12 @@ import (
 	"time"
 )
 
+// DefaultProductCodeCacheKey 缓存键
+var defaultProductCodeCacheKey = "OPEN_PRODUCT_CODE:"
+
+// DefaultProductCacheBucket 默认缓存桶
+var defaultProductCacheBucket = "DEFAULT_DB0"
+
 // ProductCodeDto 商品条码信息
 type ProductCodeDto struct {
 	ProductCode      string   `json:"product_code"`       // 商品条码
@@ -322,11 +328,8 @@ func validQrCode(x int, y string, sessionId string, debug bool) (doorCode string
 // @productCode	商品条码
 func SearchByProductCodeCache(productCode string, debug bool) (productCodeDto *ProductCodeDto, err error) {
 
-	// 缓存桶
-	cacheBucket := "bucket_default_product_code"
-
 	// 查询缓存
-	entry, err := hcache.GetCache(cacheBucket, []byte(productCode))
+	entry, err := hcache.GetCache(defaultProductCacheBucket, []byte(defaultProductCodeCacheKey+productCode))
 	if err == nil {
 
 		// 处理空数据
@@ -347,7 +350,7 @@ func SearchByProductCodeCache(productCode string, debug bool) (productCodeDto *P
 
 	if err != nil {
 		// 数据不存在，添加缓存并设置过期时间
-		err = hcache.SetCache(cacheBucket, []byte(productCode), []byte(""), 60)
+		err = hcache.SetCache(defaultProductCacheBucket, []byte(defaultProductCacheBucket+productCode), []byte(""), 60)
 		if err != nil {
 			g.Log().Line(false).Error("NutsDb保存缓存失败，异常信息：" + err.Error())
 		}
@@ -358,7 +361,7 @@ func SearchByProductCodeCache(productCode string, debug bool) (productCodeDto *P
 		// 保存数据至缓存
 		jsonByte, err := json.Marshal(productCodeInfo)
 		if err == nil {
-			err = hcache.SetCache(cacheBucket, []byte(productCode), jsonByte, 0)
+			err = hcache.SetCache(defaultProductCacheBucket, []byte(defaultProductCodeCacheKey+productCode), jsonByte, 0)
 			if err != nil {
 				g.Log().Line(false).Error("NutsDb保存缓存失败，异常信息：" + err.Error())
 			}

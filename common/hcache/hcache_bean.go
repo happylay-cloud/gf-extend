@@ -150,3 +150,26 @@ func DelCache(bucket string, key []byte) (err error) {
 
 	return err
 }
+
+// ScanByKeyPrefix 前缀扫描缓存
+func ScanByKeyPrefix(bucket string, keyPrefix string, offset int, rows int) (entries nutsdb.Entries, off int, err error) {
+
+	// 获取单例缓存数据库实例
+	db, err := GetNutsDbCacheBean()
+	if err != nil {
+		return nil, offset, err
+	}
+
+	if err := db.View(
+		func(tx *nutsdb.Tx) error {
+			// 从指定偏移量开始查询缓存数据
+			if entries, off, err = tx.PrefixScan(bucket, []byte(keyPrefix), offset, rows); err != nil {
+				return err
+			}
+			return nil
+		}); err != nil {
+		return nil, offset, err
+	}
+
+	return entries, off, err
+}

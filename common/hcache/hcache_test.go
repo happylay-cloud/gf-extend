@@ -266,3 +266,14 @@ func TestNutsDbCacheBackup(t *testing.T) {
 		log.Fatal(err)
 	}
 }
+
+func TestNusDbCacheScan(t *testing.T) {
+
+	entries, off, err := ScanByKeyPrefix("DEFAULT_DB0", "OPEN_PRODUCT_CODE:", 0, 1)
+	if err != nil {
+		return
+	}
+
+	g.Dump(off, entries)
+
+}
