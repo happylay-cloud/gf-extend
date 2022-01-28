@@ -328,6 +328,12 @@ func SearchByProductCodeCache(productCode string, debug bool) (productCodeDto *P
 	// 查询缓存
 	entry, err := hcache.GetCache(cacheBucket, []byte(productCode))
 	if err == nil {
+
+		// 处理空数据
+		if gstr.LenRune(string(entry.Value)) == 0 {
+			return nil, errors.New("未知商品")
+		}
+
 		err = json.Unmarshal(entry.Value, &productCodeDto)
 		if err != nil {
 			return nil, err
@@ -339,17 +345,23 @@ func SearchByProductCodeCache(productCode string, debug bool) (productCodeDto *P
 	// 查询数据
 	productCodeInfo, err := SearchByProductCode(productCode, debug)
 
+	if err != nil {
+		// 数据不存在，添加缓存并设置过期时间
+		err = hcache.SetCache(cacheBucket, []byte(productCode), []byte(""), 60)
+		if err != nil {
+			g.Log().Line(false).Error("NutsDb保存缓存失败，异常信息：" + err.Error())
+		}
+		return productCodeInfo, nil
+	}
+
 	if err == nil {
+		// 保存数据至缓存
 		jsonByte, err := json.Marshal(productCodeInfo)
 		if err == nil {
-			// 异步保存缓存
-			go func() {
-				err = hcache.SetCache(cacheBucket, []byte(productCode), jsonByte, 0)
-				if err != nil {
-					g.Log().Line(false).Error("NutsDb保存缓存失败，异常信息：" + err.Error())
-				}
-			}()
-
+			err = hcache.SetCache(cacheBucket, []byte(productCode), jsonByte, 0)
+			if err != nil {
+				g.Log().Line(false).Error("NutsDb保存缓存失败，异常信息：" + err.Error())
+			}
 			return productCodeInfo, nil
 		}
 	}
