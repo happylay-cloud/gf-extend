@@ -22,20 +22,20 @@ import (
 
 // ProductCodeDto 商品条码信息
 type ProductCodeDto struct {
-	ProductCode      string   // 商品条码
-	ProductCodeImage string   // 商品条形码图片
-	CompanyName      string   // 企业名称
-	CompanyAddress   string   // 企业注册地址
-	ProductName      string   // 产品名称
-	ProductCategory  string   // 产品分类
-	Brand            string   // 品牌
-	ProductSpec      string   // 产品规格
-	StandardNo       string   // 标准号
-	StandardName     string   // 标准名称
-	ProductExp       string   // 保质期
-	UpMarketTime     string   // 上市日期
-	DownMarketTime   string   // 下市日期
-	ProductImageList []string // 图片列表
+	ProductCode      string   `json:"product_code"`       // 商品条码
+	ProductCodeImage string   `json:"product_code_image"` // 商品条形码图片
+	CompanyName      string   `json:"company_name"`       // 企业名称
+	CompanyAddress   string   `json:"company_address"`    // 企业注册地址
+	ProductName      string   `json:"product_name"`       // 产品名称
+	ProductCategory  string   `json:"product_category"`   // 产品分类
+	Brand            string   `json:"brand"`              // 品牌
+	ProductSpec      string   `json:"product_spec"`       // 产品规格
+	StandardNo       string   `json:"standard_no"`        // 标准号
+	StandardName     string   `json:"standard_name"`      // 标准名称
+	ProductExp       string   `json:"product_exp"`        // 保质期
+	UpMarketTime     string   `json:"up_market_time"`     // 上市日期
+	DownMarketTime   string   `json:"down_market_time"`   // 下市日期
+	ProductImageList []string `json:"product_image_list"` // 图片列表
 }
 
 // SearchByProductCode 根据商品条码查询商品信息，警告：此方法仅供学习参考，禁止用于商业
