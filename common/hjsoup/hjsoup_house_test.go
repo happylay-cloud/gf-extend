@@ -8,10 +8,10 @@ import (
 
 func TestHeFeiFangJiaPage(t *testing.T) {
 
-	viewState1, err := GetHeFeiFangJiaRecordViewState()
+	viewState1, totalPage, err := GetHeFeiFangJiaRecordViewState()
 	if err == nil {
 		page, _ := ListHeFeiFangJiaRecordPage(viewState1, 3)
-		fmt.Println(len(page))
+		fmt.Println("总分页：", totalPage, "当前条数：", len(page))
 		g.Dump(page)
 	}
 
@@ -19,11 +19,11 @@ func TestHeFeiFangJiaPage(t *testing.T) {
 
 func TestHeFeiFangJiaDetail(t *testing.T) {
 
-	detail, viewState, err := GetHeFeiFangJiaDetail("8233")
+	detail, viewState, totalPage, err := GetHeFeiFangJiaDetail("8351")
 	if err == nil {
-		g.Dump(detail, viewState)
+		g.Dump("详情：", detail, "总分页：", totalPage, "状态：", viewState)
 
-		page, err := ListHeFeiFangJiaHousePage(viewState, "8233", 1)
+		page, err := ListHeFeiFangJiaHousePage(viewState, "8351", 1)
 		if err == nil {
 			g.Dump(len(page), page)
 		}

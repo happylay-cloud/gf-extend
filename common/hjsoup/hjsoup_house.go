@@ -76,7 +76,7 @@ type RecordHouseDetailDTO struct {
 }
 
 // GetHeFeiFangJiaRecordViewState 获取访问状态，警告：此方法仅供学习参考，禁止用于商业
-func GetHeFeiFangJiaRecordViewState() (string, error) {
+func GetHeFeiFangJiaRecordViewState() (string, int, error) {
 
 	// 获取房价信息
 	response, err := g.Client().Timeout(20 * time.Second).
@@ -87,23 +87,60 @@ func GetHeFeiFangJiaRecordViewState() (string, error) {
 		ContentType("application/x-www-form-urlencoded").
 		Post("http://220.178.124.94:8010/fangjia/ws/DefaultList.aspx")
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	// 解析响应体
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	// 解析数据
 	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	// 获取客户端状态
 	viewState, _ := dom.Find("#__VIEWSTATE").First().Attr("value")
-	return viewState, err
+
+	// 定义最大分页数
+	var totalPage = 1
+	dom.Find("tr").Each(func(t1 int, s1 *goquery.Selection) {
+
+		s1.Find("td").Each(func(t2 int, s2 *goquery.Selection) {
+
+			// 开始
+			pageHref := strings.TrimSpace(s2.Text())
+			if gstr.Contains(pageHref, "首页") {
+				s2.Find("a").Each(func(i int, a *goquery.Selection) {
+
+					href, find := a.Attr("href")
+					if find {
+						// 获取分页数据
+						attr := strings.TrimSpace(href)
+						attrLeft := gstr.Replace(attr, "javascript:__doPostBack('AspNetPager1','", "")
+						attrValueStr := gstr.Replace(attrLeft, "')", "")
+
+						// 更新最大分页数
+						if gstr.LenRune(attrValueStr) > 0 {
+							attrValue, err := strconv.Atoi(attrValueStr)
+							if err == nil {
+								if attrValue > totalPage {
+									totalPage = attrValue
+								}
+							}
+						}
+					}
+
+				})
+			}
+			// 结束
+		})
+
+	})
+
+	return viewState, totalPage, err
 }
 
 // ListHeFeiFangJiaRecordPage 获取商品住宅明码标价分页数据
@@ -199,10 +236,8 @@ func ListHeFeiFangJiaRecordPage(viewState string, pageNum int) ([]*RecordHousePr
 }
 
 // GetHeFeiFangJiaDetail 获取楼盘详情分页数据
-// @viewState 客户端状态
 // @hrefId 跳转详情ID
-// @pageNum 页码
-func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error) {
+func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, int, error) {
 
 	// 1-2、获取房价详情
 	response, err := g.Client().Timeout(20 * time.Second).
@@ -213,26 +248,25 @@ func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error
 		ContentType("application/x-www-form-urlencoded").
 		Post("http://220.178.124.94:8010/fangjia/ws/Detail2.aspx?Id=" + hrefId)
 	if err != nil {
-		return nil, "", err
+		return nil, "", 0, err
 	}
 
 	// 1-3、解析响应体
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, "", err
+		return nil, "", 0, err
 	}
 
 	// 2-1.解析数据
 	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
 	if err != nil {
-		return nil, "", err
+		return nil, "", 0, err
 	}
 
 	// 获取客户端状态
 	viewState, find := dom.Find("#__VIEWSTATE").First().Attr("value")
-
 	if !find {
-		return nil, "", errors.New("跳转详情ID无效")
+		return nil, "", 0, errors.New("跳转详情ID无效")
 	}
 
 	// 定义详情数据
@@ -246,6 +280,7 @@ func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error
 	dom.Find("#IsTableShow").Find("tr").Each(func(t1 int, s1 *goquery.Selection) {
 		var key, value string
 		s1.Find("td").Each(func(t2 int, s2 *goquery.Selection) {
+
 			switch t2 % 2 {
 			case 0:
 				key = gstr.Replace(strings.TrimSpace(s2.Text()), "\n", "")
@@ -440,7 +475,43 @@ func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error
 		}
 	}
 
-	return &recordEstateDetailDTO, viewState, err
+	// 定义最大分页数
+	var totalPage = 1
+	dom.Find("tr").Each(func(t1 int, s1 *goquery.Selection) {
+
+		s1.Find("td").Each(func(t2 int, s2 *goquery.Selection) {
+
+			// 开始
+			pageHref := strings.TrimSpace(s2.Text())
+			if gstr.Contains(pageHref, "首页") {
+				s2.Find("a").Each(func(i int, a *goquery.Selection) {
+
+					href, find := a.Attr("href")
+					if find {
+						// 获取分页数据
+						attr := strings.TrimSpace(href)
+						attrLeft := gstr.Replace(attr, "javascript:__doPostBack('AspNetPager1','", "")
+						attrValueStr := gstr.Replace(attrLeft, "')", "")
+
+						// 更新最大分页数
+						if gstr.LenRune(attrValueStr) > 0 {
+							attrValue, err := strconv.Atoi(attrValueStr)
+							if err == nil {
+								if attrValue > totalPage {
+									totalPage = attrValue
+								}
+							}
+						}
+					}
+
+				})
+			}
+			// 结束
+		})
+
+	})
+
+	return &recordEstateDetailDTO, viewState, totalPage, err
 }
 
 // ListHeFeiFangJiaHousePage 获取户型分页数据
