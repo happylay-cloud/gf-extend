@@ -26,22 +26,6 @@ type RecordHousePriceDTO struct {
 	ReleaseSource string `json:"release_source"` // 来源
 }
 
-// RecordHouseDetailDTO 户型详情信息
-type RecordHouseDetailDTO struct {
-	RecordNo      string `json:"record_no"`      // 备案号
-	HouseNumber   string `json:"house_number"`   // 楼号
-	RoomNumber    string `json:"room_number"`    // 房号
-	HouseType     string `json:"house_type"`     // 户型
-	HouseArea     string `json:"house_area"`     // 建筑面积
-	ShareArea     string `json:"share_area"`     // 公摊面积
-	IndoorArea    string `json:"indoor_area"`    // 套内面积
-	AvgPrice      string `json:"avg_price"`      // 备案单价
-	TotalPrince   string `json:"total_prince"`   // 备案总价
-	BuildProperty string `json:"build_property"` // 楼盘属性
-	DecorateState string `json:"decorate_state"` // 装修属性
-	Remark        string `json:"remark"`         // 备注
-}
-
 // RecordEstateDetailDTO 楼盘详情信息
 type RecordEstateDetailDTO struct {
 	RecordNo           string `json:"record_no"`           // 备案号
@@ -73,6 +57,22 @@ type RecordEstateDetailDTO struct {
 	GreenRate     string `json:"green_rate"`      // 绿化率
 	CarportRate   string `json:"carport_rate"`    // 机动车位配比率
 
+}
+
+// RecordHouseDetailDTO 户型详情信息
+type RecordHouseDetailDTO struct {
+	RecordNo      string `json:"record_no"`      // 备案号
+	HouseNumber   string `json:"house_number"`   // 楼号
+	RoomNumber    string `json:"room_number"`    // 房号
+	HouseType     string `json:"house_type"`     // 户型
+	HouseArea     string `json:"house_area"`     // 建筑面积
+	ShareArea     string `json:"share_area"`     // 公摊面积
+	IndoorArea    string `json:"indoor_area"`    // 套内面积
+	AvgPrice      string `json:"avg_price"`      // 备案单价
+	TotalPrince   string `json:"total_prince"`   // 备案总价
+	BuildProperty string `json:"build_property"` // 楼盘属性
+	DecorateState string `json:"decorate_state"` // 装修属性
+	Remark        string `json:"remark"`         // 备注
 }
 
 // GetHeFeiFangJiaRecordViewState 获取访问状态，警告：此方法仅供学习参考，禁止用于商业
@@ -184,9 +184,11 @@ func ListHeFeiFangJiaRecordPage(viewState string, pageNum int) ([]*RecordHousePr
 				}
 			})
 
-			if !gstr.Contains(recordHousePriceDTO.RecordNo, "首页") {
-				// 添加切片
-				list = append(list, &recordHousePriceDTO)
+			if gstr.LenRune(recordHousePriceDTO.RecordNo) != 0 {
+				if !gstr.Contains(recordHousePriceDTO.RecordNo, "首页") {
+					// 添加切片
+					list = append(list, &recordHousePriceDTO)
+				}
 			}
 
 		}
@@ -439,4 +441,109 @@ func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error
 	}
 
 	return &recordEstateDetailDTO, viewState, err
+}
+
+// ListHeFeiFangJiaHousePage 获取户型分页数据
+// @viewState 客户端状态
+// @hrefId 跳转详情ID
+// @pageNum 页码
+func ListHeFeiFangJiaHousePage(viewState string, hrefId string, pageNum int) ([]*RecordHouseDetailDTO, error) {
+
+	// 1-1、定义分页参数
+	formData := map[string]string{
+		"__VIEWSTATE":     viewState,
+		"__EVENTTARGET":   "AspNetPager1",
+		"__EVENTARGUMENT": strconv.Itoa(pageNum),
+	}
+
+	// 1-2、获取房价信息
+	response, err := g.Client().Timeout(20*time.Second).
+		Header(map[string]string{
+			"Host":       "drc.hefei.gov.cn",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+		}).
+		ContentType("application/x-www-form-urlencoded").
+		Post("http://220.178.124.94:8010/fangjia/ws/Detail2.aspx?Id="+hrefId, formData)
+	if err != nil {
+		return nil, err
+	}
+
+	// 1-3、解析响应体
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2-1.解析数据
+	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	if err != nil {
+		return nil, err
+	}
+
+	// 定义数据切片
+	var list []*RecordHouseDetailDTO
+	dom.Find("table").Each(func(t1 int, s1 *goquery.Selection) {
+
+		if t1 > 3 {
+			s1.Find("tr").Each(func(t2 int, s2 *goquery.Selection) {
+
+				if t2 >= 1 {
+
+					// 定义分页数据
+					recordHouseDetailDTO := RecordHouseDetailDTO{}
+
+					s2.Find("td").Each(func(t3 int, s3 *goquery.Selection) {
+
+						switch t3 {
+						case 0:
+							// 楼号
+							recordHouseDetailDTO.HouseNumber = strings.TrimSpace(s3.Text())
+						case 1:
+							// 房号
+							recordHouseDetailDTO.RoomNumber = strings.TrimSpace(s3.Text())
+						case 2:
+							// 户型
+							recordHouseDetailDTO.HouseType = strings.TrimSpace(s3.Text())
+						case 3:
+							// 建筑面积(㎡)
+							recordHouseDetailDTO.HouseArea = strings.TrimSpace(s3.Text())
+						case 4:
+							// 公摊面积(㎡)
+							recordHouseDetailDTO.ShareArea = strings.TrimSpace(s3.Text())
+						case 5:
+							// 套内面积(㎡)
+							recordHouseDetailDTO.IndoorArea = strings.TrimSpace(s3.Text())
+						case 6:
+							// 备案单价(元/㎡)
+							recordHouseDetailDTO.AvgPrice = strings.TrimSpace(s3.Text())
+						case 7:
+							// 备案总价(元)
+							recordHouseDetailDTO.TotalPrince = strings.TrimSpace(s3.Text())
+						case 8:
+							// 楼盘属性
+							recordHouseDetailDTO.BuildProperty = strings.TrimSpace(s3.Text())
+						case 9:
+							// 装修状况
+							recordHouseDetailDTO.DecorateState = strings.TrimSpace(s3.Text())
+						case 10:
+							// 备注
+							recordHouseDetailDTO.Remark = strings.TrimSpace(s3.Text())
+						}
+					})
+
+					if gstr.LenRune(recordHouseDetailDTO.HouseNumber) != 0 {
+						if !gstr.Contains(recordHouseDetailDTO.HouseNumber, "首页") {
+							// 添加切片
+							list = append(list, &recordHouseDetailDTO)
+						}
+					}
+
+				}
+			})
+
+		}
+
+	})
+
+	return list, err
 }
