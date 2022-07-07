@@ -6,13 +6,22 @@ import (
 	"testing"
 )
 
-func TestHeFeiFangJia(t *testing.T) {
+func TestHeFeiFangJiaPage(t *testing.T) {
 
-	viewState, err := GetHeFeiFangJiaRecordViewState()
+	viewState1, err := GetHeFeiFangJiaRecordViewState()
 	if err == nil {
-		page, _ := ListHeFeiFangJiaRecordPage(viewState, 3)
+		page, _ := ListHeFeiFangJiaRecordPage(viewState1, 3)
 		fmt.Println(len(page))
 		g.Dump(page)
+	}
+
+}
+
+func TestHeFeiFangJiaDetail(t *testing.T) {
+
+	detail, viewState, err := GetHeFeiFangJiaDetail("8324")
+	if err == nil {
+		g.Dump(detail, viewState)
 	}
 
 }

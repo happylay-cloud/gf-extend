@@ -1,6 +1,7 @@
 package hjsoup
 
 import (
+	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
@@ -175,4 +176,98 @@ func ListHeFeiFangJiaRecordPage(viewState string, pageNum int) ([]*RecordHousePr
 	})
 
 	return list, err
+}
+
+// GetHeFeiFangJiaDetail 获取楼盘详情分页数据
+// @viewState 客户端状态
+// @hrefId 跳转详情ID
+// @pageNum 页码
+func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error) {
+
+	// 1-2、获取房价详情
+	response, err := g.Client().Timeout(20 * time.Second).
+		Header(map[string]string{
+			"Host":       "drc.hefei.gov.cn",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+		}).
+		ContentType("application/x-www-form-urlencoded").
+		Post("http://220.178.124.94:8010/fangjia/ws/Detail2.aspx?Id=" + hrefId)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// 1-3、解析响应体
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// 2-1.解析数据
+	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	if err != nil {
+		return nil, "", err
+	}
+
+	// 获取客户端状态
+	viewState, find := dom.Find("#__VIEWSTATE").First().Attr("value")
+
+	if !find {
+		return nil, "", errors.New("跳转详情ID无效")
+	}
+
+	// 定义详情数据
+	recordEstateDetailDTO := RecordEstateDetailDTO{}
+
+	title := dom.Find("#txtTitle").First().Text()
+	// 楼盘名称
+	recordEstateDetailDTO.EstateName = strings.TrimSpace(title)
+
+	detailMap := map[string]string{}
+	dom.Find("#IsTableShow").Find("tr").Each(func(t1 int, s1 *goquery.Selection) {
+		var key, value string
+		s1.Find("td").Each(func(t2 int, s2 *goquery.Selection) {
+			switch t2 % 2 {
+			case 0:
+				key = gstr.Replace(strings.TrimSpace(s2.Text()), "\n", "")
+			case 1:
+				value = gstr.Replace(strings.TrimSpace(s2.Text()), "\n", "")
+				emptyCount := gstr.Count(value, " ")
+				// 去除多余空格，8可调，建议5-8
+				if emptyCount > 8 {
+					value = gstr.Replace(value, " ", "")
+				}
+				// 追加数据
+				detailMap[key] = value
+			}
+		})
+
+	})
+
+	// 处理详情数据
+	for key, value := range detailMap {
+		switch key {
+		case "交通状况：":
+			recordEstateDetailDTO.TrafficInfo = value
+		case "周边配套：":
+			recordEstateDetailDTO.AroundSupport = value
+		case "坐落位置：":
+			recordEstateDetailDTO.EstatePlace = value
+		case "建筑类型：":
+			recordEstateDetailDTO.BuildType = value
+		case "开发企业：":
+			recordEstateDetailDTO.EnterpriseName = value
+		case "所在区域：":
+			recordEstateDetailDTO.EstateArea = value
+		case "物业公司：":
+			recordEstateDetailDTO.PropertyCompany = value
+		case "物业类别：":
+			recordEstateDetailDTO.PropertyCategories = value
+		case "设计单位：":
+			recordEstateDetailDTO.DesignCompany = value
+		case "项目信息：":
+			recordEstateDetailDTO.ProjectInfo = value
+		}
+	}
+
+	return &recordEstateDetailDTO, viewState, err
 }
