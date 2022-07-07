@@ -1,6 +1,7 @@
 package hjsoup
 
 import (
+	"bytes"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gogf/gf/frame/g"
@@ -55,6 +56,23 @@ type RecordEstateDetailDTO struct {
 	BuildType          string `json:"build_type"`          // 建筑类型
 	DesignCompany      string `json:"design_company"`      // 设计单位
 	AroundSupport      string `json:"around_support"`      // 周边配套
+
+	// ---------------------------------------- 补充信息 ----------------------------------------
+
+	BuildNum      string `json:"build_num"`       // 幢数总计
+	Installments  string `json:"installments"`    // 开发周期
+	WallType      string `json:"wall_type"`       // 墙体类型
+	UserTime      string `json:"user_time"`       // 交付时间
+	BuildHeight   string `json:"build_height"`    // 住宅层高
+	BuildArea     string `json:"build_area"`      // 建筑面积
+	LandType      string `json:"land_type"`       // 土地性质
+	LandArea      string `json:"land_area"`       // 土地面积
+	LandStartTime string `json:"land_start_time"` // 土地开始使用时间
+	LandEndTime   string `json:"land_end_time"`   // 土地结束使用时间
+	AreaRate      string `json:"AreaRate"`        // 容积率
+	GreenRate     string `json:"green_rate"`      // 绿化率
+	CarportRate   string `json:"carport_rate"`    // 机动车位配比率
+
 }
 
 // GetHeFeiFangJiaRecordViewState 获取访问状态，警告：此方法仅供学习参考，禁止用于商业
@@ -231,14 +249,165 @@ func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, error
 				key = gstr.Replace(strings.TrimSpace(s2.Text()), "\n", "")
 			case 1:
 				value = gstr.Replace(strings.TrimSpace(s2.Text()), "\n", "")
-				emptyCount := gstr.Count(value, " ")
-				// 去除多余空格，8可调，建议5-8
-				if emptyCount > 8 {
-					value = gstr.Replace(value, " ", "")
-				}
 				// 追加数据
 				detailMap[key] = value
 			}
+
+			// 处理扩展信息
+			if gstr.Contains(s2.Text(), "%") {
+
+				// 幢数总计
+				buildNum := s2.Find("#txtLpBuildingNumber").First().Text()
+				recordEstateDetailDTO.BuildNum = strings.TrimSpace(buildNum)
+
+				// 开发周期
+				installments := s2.Find("#txtLpInstallments").First().Text()
+				recordEstateDetailDTO.Installments = strings.TrimSpace(installments)
+
+				// 墙体类型
+				wallType := s2.Find("#txtBuild").First().Text()
+				recordEstateDetailDTO.WallType = strings.TrimSpace(wallType)
+
+				// 交付时间
+				userTime := s2.Find("#txtUserTime").First().Text()
+				recordEstateDetailDTO.UserTime = strings.TrimSpace(userTime)
+
+				// 住宅层高
+				buildHeight := s2.Find("#txtBuildheight").First().Text()
+				recordEstateDetailDTO.BuildHeight = strings.TrimSpace(buildHeight)
+
+				// 建筑面积
+				buildArea := s2.Find("#txtLpBuildArea").First().Text()
+				recordEstateDetailDTO.BuildArea = strings.TrimSpace(buildArea)
+
+				// 土地性质
+				landType := s2.Find("#txtFileNo").First().Text()
+				recordEstateDetailDTO.LandType = strings.TrimSpace(landType)
+
+				// 土地面积
+				landArea := s2.Find("#txtLpLandArea").First().Text()
+				recordEstateDetailDTO.LandArea = strings.TrimSpace(landArea)
+
+				// 土地开始使用时间
+				landStartTime := s2.Find("#txtAFloorDistancePrice").First().Text()
+				recordEstateDetailDTO.LandStartTime = strings.TrimSpace(landStartTime)
+
+				// 土地结束使用时间
+				landEndTime := s2.Find("#txtACDistancePrice").First().Text()
+				recordEstateDetailDTO.LandEndTime = strings.TrimSpace(landEndTime)
+
+				// 容积率
+				areaRate := s2.Find("#txtLpFloorAreaRatio").First().Text()
+				recordEstateDetailDTO.AreaRate = strings.TrimSpace(areaRate)
+
+				// 绿化率
+				greenRate := s2.Find("#txtLpGreeningRate").First().Text()
+				recordEstateDetailDTO.GreenRate = strings.TrimSpace(greenRate)
+
+				// 机动车位配比率
+				carportRate := s2.Find("#txtCDistancePrice").First().Text()
+				recordEstateDetailDTO.CarportRate = strings.TrimSpace(carportRate)
+
+				var projectBuffer bytes.Buffer
+
+				projectBuffer.WriteString("幢数总计")
+				if gstr.LenRune(buildNum) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(buildNum)
+				}
+
+				projectBuffer.WriteString("幢，分")
+
+				if gstr.LenRune(installments) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(installments)
+				}
+
+				projectBuffer.WriteString("期开发，建筑结构")
+				if gstr.LenRune(wallType) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(wallType)
+				}
+
+				projectBuffer.WriteString("，交付使用日期")
+				if gstr.LenRune(userTime) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(userTime)
+				}
+
+				projectBuffer.WriteString("，住宅层高")
+				if gstr.LenRune(buildHeight) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(buildHeight)
+				}
+
+				projectBuffer.WriteString("米；建筑面积")
+				if gstr.LenRune(buildArea) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(buildArea)
+				}
+
+				projectBuffer.WriteString("平方米，土地性质")
+				if gstr.LenRune(landType) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(landType)
+				}
+
+				projectBuffer.WriteString("，土地面积")
+				if gstr.LenRune(landArea) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(landArea)
+				}
+
+				projectBuffer.WriteString("平方米，土地使用年限")
+				if gstr.LenRune(landStartTime) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(landStartTime)
+				}
+
+				projectBuffer.WriteString("年至")
+				if gstr.LenRune(landEndTime) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(landEndTime)
+				}
+
+				projectBuffer.WriteString("年，容积率")
+				if gstr.LenRune(areaRate) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(areaRate)
+				}
+
+				projectBuffer.WriteString("，绿化率")
+				if gstr.LenRune(greenRate) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(greenRate)
+				}
+
+				projectBuffer.WriteString("%，机动车位配比率")
+				if gstr.LenRune(carportRate) == 0 {
+					projectBuffer.WriteString("*")
+				} else {
+					projectBuffer.WriteString(carportRate)
+				}
+				projectBuffer.WriteString("%。")
+
+				value = projectBuffer.String()
+				// 追加数据
+				detailMap[key] = value
+			}
+
 		})
 
 	})

@@ -19,7 +19,7 @@ func TestHeFeiFangJiaPage(t *testing.T) {
 
 func TestHeFeiFangJiaDetail(t *testing.T) {
 
-	detail, viewState, err := GetHeFeiFangJiaDetail("8324")
+	detail, viewState, err := GetHeFeiFangJiaDetail("2")
 	if err == nil {
 		g.Dump(detail, viewState)
 	}
