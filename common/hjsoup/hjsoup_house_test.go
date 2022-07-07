@@ -19,14 +19,18 @@ func TestHeFeiFangJiaPage(t *testing.T) {
 
 func TestHeFeiFangJiaDetail(t *testing.T) {
 
-	detail, viewState, totalPage, err := GetHeFeiFangJiaDetail("8351")
+	hrefId := "4"
+
+	detail, viewState, totalPage, err := GetHeFeiFangJiaDetail(hrefId)
 	if err == nil {
 		g.Dump("详情：", detail, "总分页：", totalPage, "状态：", viewState)
 
-		page, err := ListHeFeiFangJiaHousePage(viewState, "8351", 1)
+		page, err := ListHeFeiFangJiaHousePage(viewState, hrefId, 1)
 		if err == nil {
 			g.Dump(len(page), page)
 		}
+	} else {
+		g.Dump(err.Error())
 	}
 
 }

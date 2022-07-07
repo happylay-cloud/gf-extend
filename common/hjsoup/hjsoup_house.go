@@ -553,9 +553,22 @@ func ListHeFeiFangJiaHousePage(viewState string, hrefId string, pageNum int) ([]
 
 	// 定义数据切片
 	var list []*RecordHouseDetailDTO
+
+	// 获取表格数
+	tbSize := dom.Find("table").Size()
 	dom.Find("table").Each(func(t1 int, s1 *goquery.Selection) {
 
-		if t1 > 3 {
+		// 定义过滤条件
+		condition := 3
+		if tbSize > 3 {
+			// 详情存在
+			condition = 3
+		} else {
+			// 暂无详情
+			condition = 1
+		}
+
+		if t1 >= condition {
 			s1.Find("tr").Each(func(t2 int, s2 *goquery.Selection) {
 
 				if t2 >= 1 {
