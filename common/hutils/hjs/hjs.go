@@ -13,9 +13,9 @@ import (
 	"github.com/gogf/gf/text/gstr"
 )
 
-// JsCookieTwoGo 参数
+// JsCookieTwoGo 加密参数
 type JsCookieTwoGo struct {
-	BtsStr string
+	Bts    []string
 	Charts string
 	Ct     string
 	Ha     string
@@ -42,7 +42,7 @@ func GetJsCookieTwo(script string) (string, error) {
 	// 解析参数
 	twoGo := GetJsCookieTwoGo(script)
 	// 解析第二次Cookie值
-	return GetJsCookie(twoGo.Charts, twoGo.BtsStr, twoGo.Ct, twoGo.Ha, twoGo.Tn)
+	return GetJsCookie(twoGo.Charts, twoGo.Bts, twoGo.Ct, twoGo.Ha, twoGo.Tn)
 }
 
 // GetJsCookieTwoGo 获取JsCookie混淆参数
@@ -57,8 +57,6 @@ func GetJsCookieTwoGo(script string) *JsCookieTwoGo {
 	// 解析参数
 	btsArr := json.GetStrings("bts")
 	// 加密字符串
-	btsStr := btsArr[0] + "," + btsArr[1]
-	// 加密字符串
 	chars := json.GetString("chars")
 	// 校验结果
 	ct := json.GetString("ct")
@@ -71,7 +69,10 @@ func GetJsCookieTwoGo(script string) *JsCookieTwoGo {
 	wt := json.GetString("wt")
 
 	return &JsCookieTwoGo{
-		btsStr,
+		[]string{
+			btsArr[0],
+			btsArr[1],
+		},
 		chars,
 		ct,
 		ha,
@@ -90,8 +91,7 @@ func Eval(script string) (goja.Value, error) {
 }
 
 // GetJsCookie 获取js-cookie值
-func GetJsCookie(chars string, btsStr string, ct string, ha string, tn string) (string, error) {
-	bts := gstr.Split(btsStr, ",")
+func GetJsCookie(chars string, bts []string, ct string, ha string, tn string) (string, error) {
 	length := len(chars)
 	for i := 0; i < length; i++ {
 		for j := 0; j < length; j++ {
