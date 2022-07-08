@@ -7,6 +7,7 @@ require (
 	github.com/buraksezer/olric v0.4.2
 	github.com/casbin/casbin/v2 v2.40.6
 	github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/dop251/goja v0.0.0-20220705101429-189bfeb9f530
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gogf/gf v1.16.6
 	github.com/golang/protobuf v1.5.2

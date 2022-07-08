@@ -2,8 +2,15 @@ package hjsoup
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"github.com/gogf/gf/crypto/gmd5"
+	"github.com/gogf/gf/crypto/gsha1"
+	"github.com/gogf/gf/encoding/gjson"
+
 	"github.com/PuerkitoBio/goquery"
+	"github.com/dop251/goja"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 
@@ -73,6 +80,140 @@ type RecordHouseDetailDTO struct {
 	BuildProperty string `json:"build_property"` // 楼盘属性
 	DecorateState string `json:"decorate_state"` // 装修属性
 	Remark        string `json:"remark"`         // 备注
+}
+
+// GetJsCookie 获取js-cookie值
+func GetJsCookie(chars string, btsStr string, ct string, ha string, tn string) (string, error) {
+	bts := gstr.Split(btsStr, ",")
+	length := len(chars)
+	for i := 0; i < length; i++ {
+		for j := 0; j < length; j++ {
+			// 参与加密值
+			value := bts[0] + gstr.SubStr(chars, i, 1) + gstr.SubStr(chars, j, 1) + bts[1]
+			// 解析加密算法
+			switch ha {
+			case "sha1":
+				sha1Value := gsha1.Encrypt(value)
+				if gstr.Equal(sha1Value, ct) {
+					return tn + "=" + value, nil
+				}
+			case "md5":
+				md5Value, _ := gmd5.Encrypt(value)
+				if gstr.Equal(md5Value, ct) {
+					return tn + "=" + value, nil
+				}
+			case "sha256":
+				sha256.New()
+				h := sha256.New()
+				h.Write([]byte(value))
+				sha256Value := hex.EncodeToString(h.Sum(nil))
+				if gstr.Equal(sha256Value, ct) {
+					return tn + "=" + value, nil
+				}
+			default:
+				return "", errors.New("参数ha已更新")
+			}
+
+		}
+	}
+
+	return "", errors.New("无效参数")
+}
+
+// GetHeFeiFangJiaRecordReleaseInfo 获取发布信息，警告：此方法仅供学习参考，禁止用于商业
+func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
+
+	// 获取发布信息
+	response, err := g.Client().Timeout(20 * time.Second).
+		Header(map[string]string{
+			"Host":       "drc.hefei.gov.cn",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+		}).
+		Get("http://drc.hefei.gov.cn/jggl/jggs/spzzmmbjcx/index.html")
+	if err != nil {
+		return "", "", err
+	}
+
+	// 解析响应体
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	// 处理原始cookie
+	jsFmt := gstr.Replace(string(body), "<script>document.cookie=", "")
+	jsFmt = gstr.Replace(jsFmt, ";location.href=location.pathname+location.search</script>", "")
+
+	// 实例化js引擎
+	vm := goja.New()
+	// 解析cookie
+	jsCookie1, err := vm.RunString(jsFmt)
+
+	jslClearance := gstr.Split(jsCookie1.String(), ";")[0]
+	jslUidH := gstr.Split(response.Header.Get("Set-Cookie"), ";")[0]
+
+	// 获取发布信息
+	response, err = g.Client().Timeout(20 * time.Second).
+		Header(map[string]string{
+			"Cookie":     jslClearance + ";" + jslUidH,
+			"Host":       "drc.hefei.gov.cn",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+		}).
+		Get("http://drc.hefei.gov.cn/jggl/jggs/spzzmmbjcx/index.html")
+	if err != nil {
+		return "", "", err
+	}
+
+	// 解析响应体
+	body, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", "", err
+	}
+	// 去除多余字符
+	script := string(body)
+	script = gstr.Replace(script, "<script>", "")
+	script = gstr.Replace(script, "})</script>", "")
+	itemArrStr := gstr.StrEx(script, "go({")
+
+	// 提取核心参数
+	jsParams := "{" + strings.TrimSpace(itemArrStr) + "}"
+	json, _ := gjson.LoadContent(jsParams)
+
+	// 打印日志
+	g.Log().Line(false).Info("响应参数", json)
+
+	// 解析参数
+	btsArr := json.GetStrings("bts")
+	// 加密字符串
+	btsStr := btsArr[0] + "," + btsArr[1]
+	// 加密字符串
+	chars := json.GetString("chars")
+	// 校验结果
+	ct := json.GetString("ct")
+	// 加密方式
+	ha := json.GetString("ha")
+	// Cookie请求头
+	tn := json.GetString("tn")
+
+	// 解析第二次Cookie值
+	jsCookie2, err := GetJsCookie(chars, btsStr, ct, ha, tn)
+	g.Dump(jsCookie2)
+
+	// 获取发布信息
+	response, err = g.Client().Timeout(20 * time.Second).
+		Header(map[string]string{
+			"Cookie":     jsCookie2 + ";" + jslUidH,
+			"Host":       "drc.hefei.gov.cn",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36",
+		}).
+		Get("http://drc.hefei.gov.cn/jggl/jggs/spzzmmbjcx/index.html")
+	if err != nil {
+		return "", "", err
+	}
+
+	response.RawDump()
+
+	return "", "", err
 }
 
 // GetHeFeiFangJiaRecordViewState 获取访问状态，警告：此方法仅供学习参考，禁止用于商业
