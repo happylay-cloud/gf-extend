@@ -100,15 +100,10 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 		return "", "", err
 	}
 
-	// 处理原始cookie
-	jsFmt := gstr.Replace(string(body), "<script>document.cookie=", "")
-	jsFmt = gstr.Replace(jsFmt, ";location.href=location.pathname+location.search</script>", "")
-
-	// 解析cookie
-	jsCookie1, err := hjs.Eval(jsFmt)
-
-	jslClearance := gstr.Split(jsCookie1.String(), ";")[0]
+	// 获取响应cookie
 	jslUidH := gstr.Split(response.Header.Get("Set-Cookie"), ";")[0]
+	// 解析加密cookie
+	jslClearance, err := hjs.GetJsCookieOne(string(body))
 
 	// 获取发布信息
 	response, err = g.Client().Timeout(20 * time.Second).

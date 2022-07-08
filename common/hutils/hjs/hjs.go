@@ -11,6 +11,19 @@ import (
 	"github.com/gogf/gf/text/gstr"
 )
 
+// GetJsCookieOne 获取第一个JsCookie内容，__jsl_clearance
+func GetJsCookieOne(script string) (string, error) {
+	// 处理原始cookie
+	scriptStr := gstr.Replace(script, "<script>document.cookie=", "")
+	scriptStr = gstr.Replace(scriptStr, ";location.href=location.pathname+location.search</script>", "")
+	// 解析cookie
+	result, err := Eval(scriptStr)
+	if err != nil {
+		return "", err
+	}
+	return gstr.Split(result.String(), ";")[0], nil
+}
+
 // Eval javascript执行函数
 func Eval(script string) (goja.Value, error) {
 	// 实例化js引擎
