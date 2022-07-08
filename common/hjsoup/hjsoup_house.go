@@ -185,7 +185,7 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 
 	zhTime := hstr.UnicodeToZh(unicodeArr[0])
 	zhSource := hstr.UnicodeToZh(unicodeArr[1])
-	return gstr.Split(zhTime, "：")[1], gstr.Split(zhSource, "：")[1], err
+	return strings.TrimSpace(gstr.Split(zhTime, "：")[1]), strings.TrimSpace(gstr.Split(zhSource, "：")[1]), err
 }
 
 // GetHeFeiFangJiaRecordViewState 获取访问状态，警告：此方法仅供学习参考，禁止用于商业
