@@ -2,15 +2,13 @@ package hjsoup
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
-	"github.com/gogf/gf/crypto/gmd5"
-	"github.com/gogf/gf/crypto/gsha1"
-	"github.com/gogf/gf/encoding/gjson"
+
+	"github.com/happylay-cloud/gf-extend/common/hutils/hjs"
+	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/dop251/goja"
+	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 
@@ -82,44 +80,6 @@ type RecordHouseDetailDTO struct {
 	Remark        string `json:"remark"`         // 备注
 }
 
-// GetJsCookie 获取js-cookie值
-func GetJsCookie(chars string, btsStr string, ct string, ha string, tn string) (string, error) {
-	bts := gstr.Split(btsStr, ",")
-	length := len(chars)
-	for i := 0; i < length; i++ {
-		for j := 0; j < length; j++ {
-			// 参与加密值
-			value := bts[0] + gstr.SubStr(chars, i, 1) + gstr.SubStr(chars, j, 1) + bts[1]
-			// 解析加密算法
-			switch ha {
-			case "sha1":
-				sha1Value := gsha1.Encrypt(value)
-				if gstr.Equal(sha1Value, ct) {
-					return tn + "=" + value, nil
-				}
-			case "md5":
-				md5Value, _ := gmd5.Encrypt(value)
-				if gstr.Equal(md5Value, ct) {
-					return tn + "=" + value, nil
-				}
-			case "sha256":
-				sha256.New()
-				h := sha256.New()
-				h.Write([]byte(value))
-				sha256Value := hex.EncodeToString(h.Sum(nil))
-				if gstr.Equal(sha256Value, ct) {
-					return tn + "=" + value, nil
-				}
-			default:
-				return "", errors.New("参数ha已更新")
-			}
-
-		}
-	}
-
-	return "", errors.New("无效参数")
-}
-
 // GetHeFeiFangJiaRecordReleaseInfo 获取发布信息，警告：此方法仅供学习参考，禁止用于商业
 func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 
@@ -144,10 +104,8 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 	jsFmt := gstr.Replace(string(body), "<script>document.cookie=", "")
 	jsFmt = gstr.Replace(jsFmt, ";location.href=location.pathname+location.search</script>", "")
 
-	// 实例化js引擎
-	vm := goja.New()
 	// 解析cookie
-	jsCookie1, err := vm.RunString(jsFmt)
+	jsCookie1, err := hjs.Eval(jsFmt)
 
 	jslClearance := gstr.Split(jsCookie1.String(), ";")[0]
 	jslUidH := gstr.Split(response.Header.Get("Set-Cookie"), ";")[0]
@@ -179,9 +137,6 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 	jsParams := "{" + strings.TrimSpace(itemArrStr) + "}"
 	json, _ := gjson.LoadContent(jsParams)
 
-	// 打印日志
-	g.Log().Line(false).Info("响应参数", json)
-
 	// 解析参数
 	btsArr := json.GetStrings("bts")
 	// 加密字符串
@@ -196,8 +151,7 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 	tn := json.GetString("tn")
 
 	// 解析第二次Cookie值
-	jsCookie2, err := GetJsCookie(chars, btsStr, ct, ha, tn)
-	g.Dump(jsCookie2)
+	jsCookie2, err := hjs.GetJsCookie(chars, btsStr, ct, ha, tn)
 
 	// 获取发布信息
 	response, err = g.Client().Timeout(20 * time.Second).
@@ -211,9 +165,27 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 		return "", "", err
 	}
 
-	response.RawDump()
+	// 1-3、解析响应体
+	body, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", "", err
+	}
 
-	return "", "", err
+	// 2-1.解析数据
+	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(body)))
+	if err != nil {
+		return "", "", err
+	}
+
+	// 获取目标字符串
+	releaseInfoStr := strings.TrimSpace(dom.Find(".ptlminfo").First().Text())
+
+	// 转成unicode后，按半角空格分隔
+	unicodeArr := gstr.Split(hstr.ZhToUnicode(releaseInfoStr), "\\u2003")
+
+	zhTime := hstr.UnicodeToZh(unicodeArr[0])
+	zhSource := hstr.UnicodeToZh(unicodeArr[1])
+	return gstr.Split(zhTime, "：")[1], gstr.Split(zhSource, "：")[1], err
 }
 
 // GetHeFeiFangJiaRecordViewState 获取访问状态，警告：此方法仅供学习参考，禁止用于商业
