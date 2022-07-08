@@ -4,12 +4,25 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"github.com/gogf/gf/encoding/gjson"
+	"strings"
 
 	"github.com/dop251/goja"
 	"github.com/gogf/gf/crypto/gmd5"
 	"github.com/gogf/gf/crypto/gsha1"
 	"github.com/gogf/gf/text/gstr"
 )
+
+// JsCookieTwoGo 参数
+type JsCookieTwoGo struct {
+	BtsStr string
+	Charts string
+	Ct     string
+	Ha     string
+	Tn     string
+	Vt     string
+	Wt     string
+}
 
 // GetJsCookieOne 获取第一个JsCookie内容，__jsl_clearance
 func GetJsCookieOne(script string) (string, error) {
@@ -22,6 +35,50 @@ func GetJsCookieOne(script string) (string, error) {
 		return "", err
 	}
 	return gstr.Split(result.String(), ";")[0], nil
+}
+
+// GetJsCookieTwo 获取第二个JsCookie内容，__jsl_clearance
+func GetJsCookieTwo(script string) (string, error) {
+	// 解析参数
+	twoGo := GetJsCookieTwoGo(script)
+	// 解析第二次Cookie值
+	return GetJsCookie(twoGo.Charts, twoGo.BtsStr, twoGo.Ct, twoGo.Ha, twoGo.Tn)
+}
+
+// GetJsCookieTwoGo 获取JsCookie混淆参数
+func GetJsCookieTwoGo(script string) *JsCookieTwoGo {
+	// 过滤信息
+	scriptStr := gstr.Replace(script, "<script>", "")
+	scriptStr = gstr.Replace(scriptStr, "})</script>", "")
+	itemArrStr := gstr.StrEx(scriptStr, "go({")
+	// 提取核心参数
+	jsParams := "{" + strings.TrimSpace(itemArrStr) + "}"
+	json, _ := gjson.LoadContent(jsParams)
+	// 解析参数
+	btsArr := json.GetStrings("bts")
+	// 加密字符串
+	btsStr := btsArr[0] + "," + btsArr[1]
+	// 加密字符串
+	chars := json.GetString("chars")
+	// 校验结果
+	ct := json.GetString("ct")
+	// 加密方式
+	ha := json.GetString("ha")
+	// Cookie请求头
+	tn := json.GetString("tn")
+
+	vt := json.GetString("vt")
+	wt := json.GetString("wt")
+
+	return &JsCookieTwoGo{
+		btsStr,
+		chars,
+		ct,
+		ha,
+		tn,
+		vt,
+		wt,
+	}
 }
 
 // Eval javascript执行函数

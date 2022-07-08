@@ -8,7 +8,6 @@ import (
 	"github.com/happylay-cloud/gf-extend/common/hutils/hstr"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/gogf/gf/encoding/gjson"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/text/gstr"
 
@@ -122,31 +121,8 @@ func GetHeFeiFangJiaRecordReleaseInfo() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	// 去除多余字符
-	script := string(body)
-	script = gstr.Replace(script, "<script>", "")
-	script = gstr.Replace(script, "})</script>", "")
-	itemArrStr := gstr.StrEx(script, "go({")
-
-	// 提取核心参数
-	jsParams := "{" + strings.TrimSpace(itemArrStr) + "}"
-	json, _ := gjson.LoadContent(jsParams)
-
-	// 解析参数
-	btsArr := json.GetStrings("bts")
-	// 加密字符串
-	btsStr := btsArr[0] + "," + btsArr[1]
-	// 加密字符串
-	chars := json.GetString("chars")
-	// 校验结果
-	ct := json.GetString("ct")
-	// 加密方式
-	ha := json.GetString("ha")
-	// Cookie请求头
-	tn := json.GetString("tn")
-
 	// 解析第二次Cookie值
-	jsCookie2, err := hjs.GetJsCookie(chars, btsStr, ct, ha, tn)
+	jsCookie2, _ := hjs.GetJsCookieTwo(string(body))
 
 	// 获取发布信息
 	response, err = g.Client().Timeout(20 * time.Second).
