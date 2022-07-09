@@ -57,7 +57,7 @@ type RecordEstateDetailDTO struct {
 	LandArea      string `json:"land_area"`       // 土地面积
 	LandStartTime string `json:"land_start_time"` // 土地开始使用时间
 	LandEndTime   string `json:"land_end_time"`   // 土地结束使用时间
-	AreaRate      string `json:"AreaRate"`        // 容积率
+	AreaRate      string `json:"area_rate"`       // 容积率
 	GreenRate     string `json:"green_rate"`      // 绿化率
 	CarportRate   string `json:"carport_rate"`    // 机动车位配比率
 
