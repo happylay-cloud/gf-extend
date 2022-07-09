@@ -281,6 +281,9 @@ func TestIdBeanSafeMap(t *testing.T) {
 }
 
 func TestIdBeanTime(t *testing.T) {
-	id, _ := IdBean.NextID()
-	fmt.Println(GetIdGenTime(id))
+	id1, _ := IdBean.NextID()
+	fmt.Println(id1, GetIdGenTime(id1))
+
+	id2, _ := IdBean.NextID()
+	fmt.Println(id2, GetIdGenTime(id2))
 }
