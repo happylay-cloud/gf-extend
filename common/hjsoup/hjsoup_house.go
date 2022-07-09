@@ -32,6 +32,7 @@ type RecordHousePriceDTO struct {
 
 // RecordEstateDetailDTO 楼盘详情信息
 type RecordEstateDetailDTO struct {
+	HrefId             string `json:"href_id"`             // 跳转详情ID
 	RecordNo           string `json:"record_no"`           // 备案号
 	EstateName         string `json:"estate_name"`         // 楼盘名称
 	EstatePlace        string `json:"estate_place"`        // 坐落位置
@@ -65,6 +66,7 @@ type RecordEstateDetailDTO struct {
 
 // RecordHouseDetailDTO 户型详情信息
 type RecordHouseDetailDTO struct {
+	HrefId        string `json:"href_id"`        // 跳转详情ID
 	RecordNo      string `json:"record_no"`      // 备案号
 	HouseNumber   string `json:"house_number"`   // 楼号
 	RoomNumber    string `json:"room_number"`    // 房号
@@ -595,6 +597,8 @@ func GetHeFeiFangJiaDetail(hrefId string) (*RecordEstateDetailDTO, string, int, 
 
 	})
 
+	// 跳转详情ID
+	recordEstateDetailDTO.HrefId = hrefId
 	return &recordEstateDetailDTO, viewState, totalPage, err
 }
 
@@ -659,6 +663,8 @@ func ListHeFeiFangJiaHousePage(viewState string, hrefId string, pageNum int) ([]
 
 					// 定义分页数据
 					recordHouseDetailDTO := RecordHouseDetailDTO{}
+					// 跳转详情ID
+					recordHouseDetailDTO.HrefId = hrefId
 
 					s2.Find("td").Each(func(t3 int, s3 *goquery.Selection) {
 
