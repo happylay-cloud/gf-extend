@@ -19,21 +19,18 @@ import (
 
 // RecordHousePriceDTO 商品住宅明码标价信息
 type RecordHousePriceDTO struct {
-	HrefId        string `json:"href_id"`        // 跳转详情ID
-	RecordNo      string `json:"record_no"`      // 备案号
-	EstateName    string `json:"estate_name"`    // 楼盘名称
-	HouseNumbers  string `json:"house_numbers"`  // 楼号
-	HouseArea     string `json:"house_area"`     // 建筑面积
-	HouseNum      string `json:"house_num"`      // 套数
-	AvgPrice      string `json:"avg_price"`      // 均价
-	ReleaseTime   string `json:"release_time"`   // 发布日期
-	ReleaseSource string `json:"release_source"` // 来源
+	HrefId       string `json:"href_id"`       // 跳转详情ID
+	RecordNo     string `json:"record_no"`     // 备案号
+	EstateName   string `json:"estate_name"`   // 楼盘名称
+	HouseNumbers string `json:"house_numbers"` // 楼号
+	HouseArea    string `json:"house_area"`    // 建筑面积
+	HouseNum     string `json:"house_num"`     // 套数
+	AvgPrice     string `json:"avg_price"`     // 均价
 }
 
 // RecordEstateDetailDTO 楼盘详情信息
 type RecordEstateDetailDTO struct {
 	HrefId             string `json:"href_id"`             // 跳转详情ID
-	RecordNo           string `json:"record_no"`           // 备案号
 	EstateName         string `json:"estate_name"`         // 楼盘名称
 	EstatePlace        string `json:"estate_place"`        // 坐落位置
 	EstateArea         string `json:"estate_area"`         // 所在区域
@@ -67,7 +64,6 @@ type RecordEstateDetailDTO struct {
 // RecordHouseDetailDTO 户型详情信息
 type RecordHouseDetailDTO struct {
 	HrefId        string `json:"href_id"`        // 跳转详情ID
-	RecordNo      string `json:"record_no"`      // 备案号
 	HouseNumber   string `json:"house_number"`   // 楼号
 	RoomNumber    string `json:"room_number"`    // 房号
 	HouseType     string `json:"house_type"`     // 户型
